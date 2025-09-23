@@ -1,0 +1,27 @@
+---
+globs: *.py
+description: Python coding standards and best practices for this project
+---
+
+# Python Code Standards
+
+For all Python files in this project, adhere to the following guidelines to ensure consistency, security, and maintainability.
+
+## Coding Practices
+
+- **Explicit Variable Names**: Use descriptive, explicit variable names instead of short, ambiguous ones. For example, prefer `user_configuration` over `uc`.
+- **Error Handling**: Implement robust error handling with try-except blocks and appropriate logging for critical operations.
+- **Modular Design**: Structure code into functions and classes to promote reusability. Avoid monolithic scripts.
+- **Security-First**: Validate inputs and consider security implications, especially in MCP client/server interactions.
+- **Performance**: Optimize for performance where applicable, such as using efficient data structures.
+- **Edge Cases**: Handle potential edge cases in logic, including empty inputs, invalid data types, and network failures.
+- **Assertions**: Include assertions to validate assumptions and catch errors early.
+
+## Project-Specific Notes
+
+- Reference [mcp/client.py](mdc:mcp/client.py) for MCP client implementation patterns.
+- Use [data/project_manager.py](mdc:data/project_manager.py) as a template for data handling modules.
+- Ensure compatibility with Python 3.13 as indicated in the virtual environment.
+- Follow existing code style from [server/mcp_server.py](mdc:server/mcp_server.py) for server-side logic.
+
+Avoid unnecessary whitespace changes and preserve existing code structures when making modifications.

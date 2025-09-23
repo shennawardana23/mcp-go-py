@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "created_at": "2025-09-21T15:57:50.384037",
+  "prompt_categories": [
+    "development",
+    "architecture",
+    "data",
+    "quality",
+    "communication"
+  ],
+  "default_settings": {
+    "max_tokens": 4000,
+    "temperature": 0.7,
+    "model": "gpt-4"
+  },
+  "features": {
+    "ai_integration": {
+      "enabled": true,
+      "supported_models": [
+        "gpt-4",
+        "gpt-3.5-turbo",
+        "claude-3-sonnet",
+        "claude-3-haiku"
+      ]
+    },
+    "background_processing": {
+      "enabled": true,
+      "broker": "redis"
+    },
+    "monitoring": {
+      "enabled": true,
+      "metrics_port": 9090
+    }
+  },
+  "storage": {
+    "prompts_location": "database",
+    "cache_enabled": true,
+    "cache_ttl": 3600
+  }
+}

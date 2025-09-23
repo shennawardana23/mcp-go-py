@@ -1,0 +1,283 @@
+{
+    "server": {
+        "name": "mcp-pba-tunnel",
+        "version": "1.0.0",
+        "description": "MCP Prompt-Based Architecture Tunnel - Standardized AI-Powered Development Workflows",
+        "author": "MCP-PBA-TUNNEL Team",
+        "language": "python",
+        "framework": "fastapi",
+        "protocol": "mcp-2024-11-05"
+    },
+    "mcp": {
+        "protocol_version": "2024-11-05",
+        "capabilities": {
+            "prompts": {
+                "list_changed": true
+            },
+            "resources": {
+                "list_changed": true
+            },
+            "tools": {
+                "list_changed": true
+            }
+        }
+    },
+    "memory": {
+        "enabled": true,
+        "max_conversation_length": 100,
+        "storage_backend": "redis",
+        "ttl_seconds": 3600,
+        "compression_enabled": true
+    },
+    "tools": {
+        "memory_be": {
+            "name": "memory_be",
+            "description": "Backend memory management for conversation history",
+            "handler": "memory_backend",
+            "parameters": {
+                "operation": "store|retrieve|clear",
+                "conversation_id": "string",
+                "data": "object"
+            }
+        },
+        "memory_fe": {
+            "name": "memory_fe",
+            "description": "Frontend memory interface for UI interactions",
+            "handler": "memory_frontend",
+            "parameters": {
+                "action": "get_history|save_context",
+                "session_id": "string"
+            }
+        },
+        "prompt_chain_be": {
+            "name": "prompt_chain_be",
+            "description": "Backend prompt chaining for complex workflows",
+            "handler": "chain_backend",
+            "parameters": {
+                "chain_id": "string",
+                "steps": "array",
+                "inputs": "object"
+            }
+        },
+        "prompt_chain_fe": {
+            "name": "prompt_chain_fe",
+            "description": "Frontend prompt chain visualization",
+            "handler": "chain_frontend",
+            "parameters": {
+                "chain_id": "string",
+                "visualize": "boolean"
+            }
+        }
+    },
+    "prompts": {
+        "business_logic": {
+            "name": "Business Logic Template",
+            "description": "Standard prompt for business logic implementation",
+            "category": "development",
+            "variables": [
+                "business_domain",
+                "requirements",
+                "constraints",
+                "output_format"
+            ]
+        },
+        "api_design": {
+            "name": "API Design Template",
+            "description": "Standard prompt for REST API design",
+            "category": "architecture",
+            "variables": [
+                "resource_name",
+                "operations",
+                "data_structure",
+                "authentication"
+            ]
+        },
+        "database_schema": {
+            "name": "Database Schema Template",
+            "description": "Standard prompt for database design",
+            "category": "data",
+            "variables": [
+                "entity_name",
+                "relationships",
+                "constraints",
+                "indexes"
+            ]
+        },
+        "testing_strategy": {
+            "name": "Testing Strategy Template",
+            "description": "Standard prompt for testing implementation",
+            "category": "quality",
+            "variables": [
+                "component_type",
+                "test_scenarios",
+                "edge_cases",
+                "coverage_requirements"
+            ]
+        },
+        "documentation": {
+            "name": "Documentation Template",
+            "description": "Standard prompt for documentation writing",
+            "category": "communication",
+            "variables": [
+                "audience",
+                "content_type",
+                "key_points",
+                "examples"
+            ]
+        },
+        "zero_shot": {
+            "name": "Zero-Shot Prompting Template",
+            "description": "Direct prompting without examples",
+            "category": "techniques",
+            "variables": [
+                "task_description",
+                "context",
+                "expected_output"
+            ]
+        },
+        "few_shot": {
+            "name": "Few-Shot Prompting Template",
+            "description": "Prompting with a few examples",
+            "category": "techniques",
+            "variables": [
+                "task_description",
+                "examples",
+                "input_format",
+                "output_format"
+            ]
+        },
+        "chain_of_thought": {
+            "name": "Chain-of-Thought Template",
+            "description": "Step-by-step reasoning prompts",
+            "category": "techniques",
+            "variables": [
+                "problem_statement",
+                "reasoning_steps",
+                "final_answer_format"
+            ]
+        },
+        "tree_of_thoughts": {
+            "name": "Tree of Thoughts Template",
+            "description": "Multi-path reasoning for problem solving",
+            "category": "techniques",
+            "variables": [
+                "problem",
+                "possible_paths",
+                "evaluation_criteria"
+            ]
+        },
+        "react": {
+            "name": "ReAct Template",
+            "description": "Reasoning + Acting prompts",
+            "category": "techniques",
+            "variables": [
+                "task",
+                "available_actions",
+                "reasoning_guidance"
+            ]
+        },
+        "self_consistency": {
+            "name": "Self-Consistency Template",
+            "description": "Multiple reasoning paths for verification",
+            "category": "techniques",
+            "variables": [
+                "task",
+                "reasoning_prompts",
+                "consistency_check"
+            ]
+        },
+        "meta_prompting": {
+            "name": "Meta Prompting Template",
+            "description": "Prompts that generate other prompts",
+            "category": "techniques",
+            "variables": [
+                "task_description",
+                "prompt_requirements",
+                "optimization_criteria"
+            ]
+        },
+        "prompt_chaining": {
+            "name": "Prompt Chaining Template",
+            "description": "Sequential prompt execution",
+            "category": "techniques",
+            "variables": [
+                "initial_input",
+                "chain_steps",
+                "output_processing"
+            ]
+        }
+    },
+    "ai": {
+        "enabled": true,
+        "default_model": "gpt-4",
+        "max_tokens": 4000,
+        "temperature": 0.7,
+        "supported_models": [
+            "gpt-4",
+            "gpt-3.5-turbo",
+            "claude-3-sonnet",
+            "claude-3-haiku"
+        ]
+    },
+    "database": {
+        "url": "postgresql://user:password@localhost/mcp_prompts",
+        "pool_size": 20,
+        "max_overflow": 30,
+        "pool_timeout": 30,
+        "pool_recycle": 3600
+    },
+    "security": {
+        "secret_key": "your-secret-key-here",
+        "algorithm": "HS256",
+        "access_token_expire_minutes": 30,
+        "refresh_token_expire_days": 7
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "json",
+        "file": "logs/mcp_server.log"
+    },
+    "monitoring": {
+        "enabled": true,
+        "metrics_port": 9090,
+        "health_check_path": "/health"
+    },
+    "celery": {
+        "broker_url": "redis://localhost:6379/0",
+        "result_backend": "redis://localhost:6379/0",
+        "task_serializer": "json",
+        "result_serializer": "json",
+        "accept_content": [
+            "json"
+        ],
+        "timezone": "UTC",
+        "enable_utc": true
+    },
+    "aws": {
+        "lambda": {
+            "memory_size": 512,
+            "timeout": 30,
+            "concurrency": 10,
+            "architecture": "arm64",
+            "runtime": "python3.13"
+        },
+        "api_gateway": {
+            "stage_name": "prod",
+            "throttling": {
+                "rate_limit": 100,
+                "burst_limit": 200
+            },
+            "caching": {
+                "enabled": true,
+                "ttl": 300
+            }
+        },
+        "rds": {
+            "engine": "postgres",
+            "engine_version": "16.1",
+            "instance_class": "db.t4g.micro",
+            "allocated_storage": 20,
+            "backup_retention": 7
+        }
+    }
+}

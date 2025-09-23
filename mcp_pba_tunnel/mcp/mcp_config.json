@@ -1,0 +1,15 @@
+{
+    "mcpServers": {
+        "mcp-pba-tunnel": {
+            "command": "python3",
+            "args": [
+                "server/fastapi_mcp_server.py"
+            ],
+            "cwd": ".",
+            "env": {
+                "PYTHONPATH": ".",
+                "MCP_CONFIG_PATH": "config/mcp_config.json"
+            }
+        }
+    }
+}

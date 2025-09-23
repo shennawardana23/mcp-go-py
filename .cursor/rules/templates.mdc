@@ -1,0 +1,34 @@
+---
+globs: templates/**
+description: Guidelines for using and modifying Go project templates
+---
+
+# Go Project Templates
+
+This project provides pre-configured Go templates for various application types. Use these as starting points and customize as needed.
+
+## Template Structure
+
+- Each template includes:
+  - `go.mod`: Module definition with dependencies
+  - `main.go`: Entry point with framework-specific setup
+  - `README.md`: Template-specific documentation
+
+## Available Templates
+
+- **Standard**: Basic Go application template. Reference [templates/standard/main.go](mdc:templates/standard/main.go) for simple programs.
+- **Echo**: Web framework template with routing and middleware. See [templates/echo/main.go](mdc:templates/echo/main.go).
+- **Fiber**: High-performance web framework. Use [templates/fiber/main.go](mdc:templates/fiber/main.go) for fast APIs.
+- **Gin**: Lightweight web framework. Reference [templates/gin/main.go](mdc:templates/gin/main.go) for RESTful services.
+- **Microservices**: gRPC-based template with protocol buffers. Main file: [templates/microservices/main.go](mdc:templates/microservices/main.go). Proto definitions: [templates/microservices/internal/grpc/proto/user.proto](mdc:templates/microservices/internal/grpc/proto/user.proto).
+
+## Usage Guidelines
+
+- Copy a template to a new directory for your project.
+- Update `go.mod` with your module path and required versions.
+- Customize `main.go` to fit your application logic.
+- For microservices, extend the proto files as needed and regenerate Go code.
+- Ensure all dependencies are compatible with Go versions used in the project.
+- Follow security best practices when exposing services.
+
+Do not modify templates in-place; create copies to preserve originals for future use.

@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+description: Overview of the MCP Go-Python project structure and key components
+---
+
+# MCP Go-Python Project Overview
+
+This project integrates Model Context Protocol (MCP) with Go and Python components for server-client architecture.
+
+## Key Directories and Files
+
+- **config/**: Contains configuration files like `mcp_config.json` for MCP settings
+- **data/**: Python modules for data management, including `project_manager.py` and `projects.json`
+- **docs/**: Documentation files, refer to [README.md](mdc:README.md) for project details
+- **documents/**: Detailed architecture and component documentation
+- **mcp/**: MCP client implementation in Python (`client.py`)
+- **server/**: MCP server implementation in Python (`mcp_server.py`)
+- **templates/**: Go project templates for various frameworks:
+  - echo/, fiber/, gin/: Web framework templates
+  - microservices/: gRPC-based microservices template with [user.proto](mdc:templates/microservices/internal/grpc/proto/user.proto)
+  - standard/: Basic Go application template
+
+## Development Guidelines
+
+- Use explicit variable names for clarity
+- Follow modular design for maintainability
+- Consider security implications in MCP implementations
+- Reference [setup.py](mdc:setup.py) for Python dependencies
+- Check [requirements.txt](mdc:requirements.txt) for Python package requirements
+
+For Go development, use templates as starting points and ensure compatibility with project standards.
