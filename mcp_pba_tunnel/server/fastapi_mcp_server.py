@@ -265,6 +265,126 @@ async def list_tools(request: Dict[str, Any] = None):
                     },
                     "required": ["technique", "variables"]
                 }
+            },
+            {
+                "name": "enhanced_memory",
+                "description": "Enhanced memory management with context and relationships",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "enum": ["store", "retrieve", "relate", "context", "clear"]},
+                        "conversation_id": {"type": "string"},
+                        "session_id": {"type": "string"},
+                        "content": {"type": "string"},
+                        "context_type": {"type": "string"},
+                        "importance_score": {"type": "number"},
+                        "tags": {"type": "array", "items": {"type": "string"}},
+                        "relationship_type": {"type": "string"},
+                        "target_memory_id": {"type": "string"},
+                        "strength": {"type": "number"}
+                    },
+                    "required": ["operation", "conversation_id"]
+                }
+            },
+            {
+                "name": "code_analysis",
+                "description": "Analyze code files for patterns, complexity, and suggestions",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "file_path": {"type": "string"},
+                        "analysis_type": {"type": "string", "enum": ["complexity", "patterns", "security", "performance"]},
+                        "output_format": {"type": "string", "enum": ["summary", "detailed", "json"]}
+                    },
+                    "required": ["file_path", "analysis_type"]
+                }
+            },
+            {
+                "name": "file_operations",
+                "description": "Read, write, and manipulate files in the project",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "enum": ["read", "write", "search", "replace"]},
+                        "file_path": {"type": "string"},
+                        "content": {"type": "string"},
+                        "search_pattern": {"type": "string"},
+                        "replace_with": {"type": "string"}
+                    },
+                    "required": ["operation", "file_path"]
+                }
+            },
+            {
+                "name": "terminal_execution",
+                "description": "Execute terminal commands safely",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "command": {"type": "string"},
+                        "working_directory": {"type": "string"},
+                        "environment_vars": {"type": "object"},
+                        "timeout": {"type": "number"}
+                    },
+                    "required": ["command"]
+                }
+            },
+            {
+                "name": "sequential_reasoning",
+                "description": "Multi-step reasoning and problem solving",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "problem": {"type": "string"},
+                        "reasoning_steps": {"type": "number"},
+                        "constraints": {"type": "array", "items": {"type": "string"}},
+                        "evaluation_criteria": {"type": "array", "items": {"type": "string"}},
+                        "context_types": {"type": "array", "items": {"type": "string"}}
+                    },
+                    "required": ["problem"]
+                }
+            },
+            {
+                "name": "project_tracker",
+                "description": "Track project progress and tasks",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "operation": {"type": "string", "enum": ["create_task", "update_status", "get_progress", "generate_report"]},
+                        "task_data": {"type": "object"},
+                        "project_id": {"type": "string"},
+                        "task_id": {"type": "string"},
+                        "status": {"type": "string"}
+                    },
+                    "required": ["operation"]
+                }
+            },
+            {
+                "name": "data_analyzer",
+                "description": "Analyze data patterns and generate insights",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "data_source": {"type": "string"},
+                        "analysis_type": {"type": "string", "enum": ["patterns", "trends", "correlations", "anomalies"]},
+                        "parameters": {"type": "object"},
+                        "output_format": {"type": "string"}
+                    },
+                    "required": ["data_source", "analysis_type"]
+                }
+            },
+            {
+                "name": "test_generator",
+                "description": "Generate and execute tests automatically",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "code_file": {"type": "string"},
+                        "test_framework": {"type": "string"},
+                        "coverage_target": {"type": "number"},
+                        "test_types": {"type": "array", "items": {"type": "string"}}
+                    },
+                    "required": ["code_file", "test_framework"]
+                }
             }
         ]
 
@@ -488,6 +608,661 @@ async def call_tool(request: Dict[str, Any]):
                 }
             except ValueError as e:
                 raise HTTPException(status_code=404, detail=str(e))
+
+        elif tool_name == "enhanced_memory":
+            operation = arguments.get("operation")
+            conversation_id = arguments.get("conversation_id")
+            session_id = arguments.get("session_id", "default")
+            context_type = arguments.get("context_type", "conversation")
+            importance_score = arguments.get("importance_score", 0.5)
+            tags = arguments.get("tags", [])
+            relationship_type = arguments.get("relationship_type")
+            target_memory_id = arguments.get("target_memory_id")
+            strength = arguments.get("strength", 1.0)
+
+            if operation == "store":
+                content = arguments.get("content")
+                if not content:
+                    raise HTTPException(status_code=400, detail="content is required for store operation")
+
+                memory_id = data_manager.store_enhanced_memory_entry(
+                    conversation_id=conversation_id,
+                    session_id=session_id,
+                    role="user",  # Default role
+                    content=content,
+                    context_type=context_type,
+                    importance_score=importance_score,
+                    tags=tags,
+                    metadata={}
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "memory_id": memory_id,
+                        "message": "Enhanced memory entry stored successfully",
+                        "conversation_id": conversation_id
+                    }
+                }
+
+            elif operation == "retrieve":
+                entries = data_manager.retrieve_enhanced_memory_entries(
+                    conversation_id=conversation_id,
+                    limit=50
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "entries": entries,
+                        "count": len(entries),
+                        "conversation_id": conversation_id
+                    }
+                }
+
+            elif operation == "relate":
+                if not target_memory_id or not relationship_type:
+                    raise HTTPException(status_code=400, detail="target_memory_id and relationship_type are required")
+
+                relationship_id = data_manager.create_context_relationship(
+                    source_memory_id=arguments.get("source_memory_id"),
+                    target_memory_id=target_memory_id,
+                    relationship_type=relationship_type,
+                    strength=strength,
+                    metadata={}
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "relationship_id": relationship_id,
+                        "message": f"Context relationship '{relationship_type}' created successfully"
+                    }
+                }
+
+            elif operation == "context":
+                context_types = arguments.get("context_types", ["conversation", "code_analysis", "project_task"])
+                context = data_manager.build_memory_context(
+                    conversation_id=conversation_id,
+                    context_types=context_types,
+                    max_entries=20,
+                    min_importance=0.0
+                )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "context": context,
+                        "conversation_id": conversation_id
+                    }
+                }
+
+            elif operation == "clear":
+                count = data_manager.clear_enhanced_memory_entries(conversation_id)
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "message": f"Cleared {count} enhanced memory entries",
+                        "conversation_id": conversation_id
+                    }
+                }
+
+        elif tool_name == "code_analysis":
+            file_path = arguments.get("file_path")
+            analysis_type = arguments.get("analysis_type")
+            output_format = arguments.get("output_format", "summary")
+
+            if not file_path or not analysis_type:
+                raise HTTPException(status_code=400, detail="file_path and analysis_type are required")
+
+            try:
+                import os
+                import ast
+                import re
+
+                if not os.path.exists(file_path):
+                    raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    code_content = f.read()
+
+                analysis_result = {}
+
+                if analysis_type == "complexity":
+                    # Analyze code complexity
+                    lines = len(code_content.split('\n'))
+                    functions = len(re.findall(r'def\s+\w+', code_content))
+                    classes = len(re.findall(r'class\s+\w+', code_content))
+
+                    analysis_result = {
+                        "lines_of_code": lines,
+                        "function_count": functions,
+                        "class_count": classes,
+                        "complexity_score": min(10, (lines // 50) + (functions * 2) + (classes * 3))
+                    }
+
+                elif analysis_type == "patterns":
+                    # Analyze code patterns
+                    patterns = {
+                        "docstrings": len(re.findall(r'"""[\s\S]*?"""', code_content)),
+                        "type_hints": len(re.findall(r'->\s*\w+', code_content)),
+                        "async_functions": len(re.findall(r'async def', code_content)),
+                        "decorators": len(re.findall(r'@\w+', code_content))
+                    }
+                    analysis_result = patterns
+
+                elif analysis_type == "security":
+                    # Basic security analysis
+                    security_issues = []
+                    if re.search(r'eval\s*\(', code_content):
+                        security_issues.append("Use of eval() detected")
+                    if re.search(r'exec\s*\(', code_content):
+                        security_issues.append("Use of exec() detected")
+                    if re.search(r'os\.system\s*\(', code_content):
+                        security_issues.append("Use of os.system() detected")
+
+                    analysis_result = {
+                        "security_issues": security_issues,
+                        "risk_level": "HIGH" if security_issues else "LOW"
+                    }
+
+                elif analysis_type == "performance":
+                    # Basic performance analysis
+                    performance_issues = []
+                    if re.search(r'\.append\s*\(', code_content):
+                        performance_issues.append("Multiple list appends - consider list comprehension")
+                    if len(code_content) > 10000:
+                        performance_issues.append("Large file size - consider splitting")
+
+                    analysis_result = {
+                        "performance_issues": performance_issues,
+                        "file_size": len(code_content),
+                        "recommendations": "Consider optimization" if performance_issues else "No major issues"
+                    }
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "file_path": file_path,
+                        "analysis_type": analysis_type,
+                        "analysis_result": analysis_result,
+                        "output_format": output_format
+                    }
+                }
+
+            except Exception as e:
+                logger.error(f"Code analysis error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        elif tool_name == "file_operations":
+            operation = arguments.get("operation")
+            file_path = arguments.get("file_path")
+
+            if not operation or not file_path:
+                raise HTTPException(status_code=400, detail="operation and file_path are required")
+
+            try:
+                import os
+
+                if operation == "read":
+                    if not os.path.exists(file_path):
+                        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": request.get("id"),
+                        "result": {
+                            "operation": operation,
+                            "file_path": file_path,
+                            "content": content,
+                            "size": len(content)
+                        }
+                    }
+
+                elif operation == "write":
+                    content = arguments.get("content", "")
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": request.get("id"),
+                        "result": {
+                            "operation": operation,
+                            "file_path": file_path,
+                            "message": f"Successfully wrote {len(content)} characters to file"
+                        }
+                    }
+
+                elif operation == "search":
+                    search_pattern = arguments.get("search_pattern", "")
+                    if not search_pattern:
+                        raise HTTPException(status_code=400, detail="search_pattern is required for search operation")
+
+                    if not os.path.exists(file_path):
+                        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+
+                    matches = []
+                    for i, line in enumerate(content.split('\n'), 1):
+                        if search_pattern in line:
+                            matches.append({"line": i, "content": line.strip()})
+
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": request.get("id"),
+                        "result": {
+                            "operation": operation,
+                            "file_path": file_path,
+                            "search_pattern": search_pattern,
+                            "matches": matches,
+                            "match_count": len(matches)
+                        }
+                    }
+
+                elif operation == "replace":
+                    search_pattern = arguments.get("search_pattern", "")
+                    replace_with = arguments.get("replace_with", "")
+
+                    if not search_pattern or not replace_with:
+                        raise HTTPException(status_code=400, detail="search_pattern and replace_with are required")
+
+                    if not os.path.exists(file_path):
+                        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+
+                    new_content = content.replace(search_pattern, replace_with)
+
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": request.get("id"),
+                        "result": {
+                            "operation": operation,
+                            "file_path": file_path,
+                            "search_pattern": search_pattern,
+                            "replace_with": replace_with,
+                            "replacements": content.count(search_pattern)
+                        }
+                    }
+
+            except Exception as e:
+                logger.error(f"File operation error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        elif tool_name == "terminal_execution":
+            command = arguments.get("command")
+            working_directory = arguments.get("working_directory", ".")
+            environment_vars = arguments.get("environment_vars", {})
+            timeout = arguments.get("timeout", 30)
+
+            if not command:
+                raise HTTPException(status_code=400, detail="command is required")
+
+            try:
+                import subprocess
+                import os
+
+                # Set environment variables
+                env = os.environ.copy()
+                env.update(environment_vars)
+
+                result = subprocess.run(
+                    command,
+                    shell=True,
+                    cwd=working_directory,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    env=env
+                )
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "command": command,
+                        "working_directory": working_directory,
+                        "return_code": result.returncode,
+                        "stdout": result.stdout,
+                        "stderr": result.stderr,
+                        "success": result.returncode == 0
+                    }
+                }
+
+            except subprocess.TimeoutExpired:
+                raise HTTPException(status_code=408, detail=f"Command timed out after {timeout} seconds")
+            except Exception as e:
+                logger.error(f"Terminal execution error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        elif tool_name == "sequential_reasoning":
+            problem = arguments.get("problem")
+            reasoning_steps = arguments.get("reasoning_steps", 5)
+            constraints = arguments.get("constraints", [])
+            evaluation_criteria = arguments.get("evaluation_criteria", [])
+            context_types = arguments.get("context_types", [])
+
+            if not problem:
+                raise HTTPException(status_code=400, detail="problem is required")
+
+            try:
+                # Build context if context types are specified
+                context = ""
+                if context_types:
+                    conversation_id = arguments.get("conversation_id", "default")
+                    context = data_manager.build_memory_context(
+                        conversation_id=conversation_id,
+                        context_types=context_types,
+                        max_entries=10,
+                        min_importance=0.3
+                    )
+
+                # Create reasoning prompt
+                reasoning_prompt = f"""
+                Problem: {problem}
+
+                {f'Context: {context}' if context else ''}
+
+                {f'Constraints: {" | ".join(constraints)}' if constraints else ''}
+
+                Please solve this step by step with {reasoning_steps} reasoning steps.
+                {f'Evaluation Criteria: {" | ".join(evaluation_criteria)}' if evaluation_criteria else ''}
+
+                Provide your answer in the following format:
+                STEP 1: [First reasoning step]
+                STEP 2: [Second reasoning step]
+                ...
+                FINAL ANSWER: [Your solution]
+                """
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "problem": problem,
+                        "reasoning_steps": reasoning_steps,
+                        "reasoning_prompt": reasoning_prompt,
+                        "constraints": constraints,
+                        "evaluation_criteria": evaluation_criteria
+                    }
+                }
+
+            except Exception as e:
+                logger.error(f"Sequential reasoning error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        elif tool_name == "project_tracker":
+            operation = arguments.get("operation")
+            project_id = arguments.get("project_id", "default")
+
+            if operation == "create_task":
+                task_data = arguments.get("task_data", {})
+                if not task_data:
+                    raise HTTPException(status_code=400, detail="task_data is required for create_task operation")
+
+                # Store task as enhanced memory
+                memory_id = data_manager.store_enhanced_memory_entry(
+                    conversation_id=f"project_{project_id}",
+                    session_id="project_manager",
+                    role="system",
+                    content=f"Task created: {task_data.get('title', 'Untitled')}",
+                    context_type="project_task",
+                    importance_score=0.7,
+                    tags=["task", "created"],
+                    metadata=task_data
+                )
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "operation": operation,
+                        "project_id": project_id,
+                        "task_id": memory_id,
+                        "message": "Task created successfully"
+                    }
+                }
+
+            elif operation == "update_status":
+                task_id = arguments.get("task_id")
+                status = arguments.get("status")
+
+                if not task_id or not status:
+                    raise HTTPException(status_code=400, detail="task_id and status are required")
+
+                # Store status update as enhanced memory
+                memory_id = data_manager.store_enhanced_memory_entry(
+                    conversation_id=f"project_{project_id}",
+                    session_id="project_manager",
+                    role="system",
+                    content=f"Task {task_id} status updated to: {status}",
+                    context_type="project_task",
+                    importance_score=0.6,
+                    tags=["task", "status_update", status],
+                    metadata={"task_id": task_id, "status": status}
+                )
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "operation": operation,
+                        "project_id": project_id,
+                        "task_id": task_id,
+                        "status": status,
+                        "message": f"Task status updated to {status}"
+                    }
+                }
+
+            elif operation == "get_progress":
+                # Get all project tasks
+                tasks = data_manager.retrieve_enhanced_memory_entries(
+                    conversation_id=f"project_{project_id}",
+                    context_type="project_task",
+                    limit=100
+                )
+
+                completed_tasks = [t for t in tasks if t.get('metadata', {}).get('status') == 'completed']
+                total_tasks = len(tasks)
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "operation": operation,
+                        "project_id": project_id,
+                        "total_tasks": total_tasks,
+                        "completed_tasks": len(completed_tasks),
+                        "progress_percentage": (len(completed_tasks) / total_tasks * 100) if total_tasks > 0 else 0,
+                        "tasks": tasks
+                    }
+                }
+
+            elif operation == "generate_report":
+                tasks = data_manager.retrieve_enhanced_memory_entries(
+                    conversation_id=f"project_{project_id}",
+                    context_type="project_task",
+                    limit=100
+                )
+
+                report = f"""
+                # Project Progress Report - {project_id}
+
+                Total Tasks: {len(tasks)}
+                Completed Tasks: {len([t for t in tasks if t.get('metadata', {}).get('status') == 'completed'])}
+                In Progress Tasks: {len([t for t in tasks if t.get('metadata', {}).get('status') == 'in_progress'])}
+                Pending Tasks: {len([t for t in tasks if t.get('metadata', {}).get('status') == 'pending'])}
+
+                ## Task Details:
+                """
+                for task in tasks:
+                    metadata = task.get('metadata', {})
+                    report += f"\n- {metadata.get('title', 'Untitled')}: {metadata.get('status', 'unknown')}"
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "operation": operation,
+                        "project_id": project_id,
+                        "report": report
+                    }
+                }
+
+        elif tool_name == "data_analyzer":
+            data_source = arguments.get("data_source")
+            analysis_type = arguments.get("analysis_type")
+            parameters = arguments.get("parameters", {})
+            output_format = arguments.get("output_format", "summary")
+
+            if not data_source or not analysis_type:
+                raise HTTPException(status_code=400, detail="data_source and analysis_type are required")
+
+            try:
+                # This is a basic implementation - in a real system you'd connect to actual data sources
+                analysis_result = {
+                    "data_source": data_source,
+                    "analysis_type": analysis_type,
+                    "parameters": parameters,
+                    "analysis_timestamp": datetime.utcnow().isoformat()
+                }
+
+                # Mock analysis based on type
+                if analysis_type == "patterns":
+                    analysis_result["patterns"] = ["Pattern 1", "Pattern 2", "Pattern 3"]
+                    analysis_result["insights"] = "Data shows consistent patterns over time"
+
+                elif analysis_type == "trends":
+                    analysis_result["trend_direction"] = "upward"
+                    analysis_result["trend_strength"] = 0.75
+                    analysis_result["insights"] = "Strong upward trend detected"
+
+                elif analysis_type == "correlations":
+                    analysis_result["correlations"] = [
+                        {"variables": ["A", "B"], "correlation": 0.8},
+                        {"variables": ["B", "C"], "correlation": 0.6}
+                    ]
+                    analysis_result["insights"] = "Strong positive correlations found"
+
+                elif analysis_type == "anomalies":
+                    analysis_result["anomalies"] = ["Anomaly at point 15", "Anomaly at point 67"]
+                    analysis_result["insights"] = "Multiple data anomalies detected"
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "data_source": data_source,
+                        "analysis_type": analysis_type,
+                        "analysis_result": analysis_result,
+                        "output_format": output_format
+                    }
+                }
+
+            except Exception as e:
+                logger.error(f"Data analysis error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
+
+        elif tool_name == "test_generator":
+            code_file = arguments.get("code_file")
+            test_framework = arguments.get("test_framework")
+            coverage_target = arguments.get("coverage_target", 80)
+            test_types = arguments.get("test_types", ["unit"])
+
+            if not code_file or not test_framework:
+                raise HTTPException(status_code=400, detail="code_file and test_framework are required")
+
+            try:
+                import os
+                import ast
+
+                if not os.path.exists(code_file):
+                    raise HTTPException(status_code=404, detail=f"Code file not found: {code_file}")
+
+                with open(code_file, 'r', encoding='utf-8') as f:
+                    code_content = f.read()
+
+                # Parse the code to extract functions and classes
+                tree = ast.parse(code_content)
+
+                functions = []
+                classes = []
+
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.FunctionDef):
+                        functions.append({
+                            "name": node.name,
+                            "args": [arg.arg for arg in node.args.args],
+                            "line": node.lineno
+                        })
+                    elif isinstance(node, ast.ClassDef):
+                        classes.append({
+                            "name": node.name,
+                            "line": node.lineno
+                        })
+
+                # Generate test code based on framework
+                test_code = f"# Generated tests for {code_file}\n"
+
+                if test_framework == "pytest":
+                    test_code += "import pytest\n"
+                    test_code += f"from {os.path.splitext(os.path.basename(code_file))[0]} import *\n\n"
+
+                    for func in functions:
+                        test_code += f"""
+def test_{func['name']}():
+    # Test for {func['name']}
+    result = {func['name']}({', '.join([f'arg{i}' for i in range(len(func['args']))])})
+    assert result is not None
+"""
+
+                elif test_framework == "unittest":
+                    test_code += "import unittest\n"
+                    test_code += f"from {os.path.splitext(os.path.basename(code_file))[0]} import *\n\n"
+
+                    test_code += f"""
+class TestGenerated(unittest.TestCase):
+"""
+
+                    for func in functions:
+                        test_code += f"""
+    def test_{func['name']}(self):
+        # Test for {func['name']}
+        result = {func['name']}({', '.join([f'arg{i}' for i in range(len(func['args']))])})
+        self.assertIsNotNone(result)
+"""
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "result": {
+                        "code_file": code_file,
+                        "test_framework": test_framework,
+                        "functions_found": len(functions),
+                        "classes_found": len(classes),
+                        "coverage_target": coverage_target,
+                        "generated_test_code": test_code,
+                        "test_types": test_types
+                    }
+                }
+
+            except Exception as e:
+                logger.error(f"Test generation error: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
 
         else:
             raise HTTPException(status_code=400, detail=f"Unknown tool: {tool_name}")

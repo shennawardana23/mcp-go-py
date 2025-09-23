@@ -19,6 +19,8 @@ Welcome to the MCP-PBA-TUNNEL project! This document outlines the standards, pra
 - [⚡ Performance Best Practices](#-performance-best-practices)
 - [🗃️ Database Management](#-database-management)
 - [🔄 Migration Management](#-migration-management)
+- [🧠 Enhanced Memory System Development](#-enhanced-memory-system-development)
+- [🛠️ Advanced Tools Development](#-advanced-tools-development)
 - [🤝 Collaboration Guidelines](#-collaboration-guidelines)
 - [📊 Code Review Process](#-code-review-process)
 - [🚀 Deployment Guidelines](#-deployment-guidelines)
@@ -928,6 +930,797 @@ alembic history
 
 # Generate SQL without applying
 alembic upgrade head --sql
+```
+
+## 🧠 Enhanced Memory System Development
+
+### 1. Memory Context Architecture
+
+The enhanced memory system provides sophisticated context management with relationships and importance scoring:
+
+```mermaid
+graph TB
+    subgraph "Memory Context Management"
+        A[Context Creation<br/>Conversation + Session] --> B[Importance Scoring<br/>Calculate Relevance]
+        B --> C[Tag Processing<br/>Extract Categories]
+        C --> D[Relationship Mapping<br/>Link Related Entries]
+        D --> E[Context Storage<br/>Persistent Memory]
+        E --> F[Context Retrieval<br/>Smart Querying]
+    end
+
+    subgraph "Memory Patterns"
+        G[Conversation Memory<br/>Chat History] --> A
+        H[Task Memory<br/>Project Context] --> A
+        I[Reference Memory<br/>Knowledge Base] --> A
+    end
+
+    subgraph "Advanced Features"
+        F --> J[Importance Filtering<br/>Relevance-Based Retrieval]
+        F --> K[Relationship Queries<br/>Context Connections]
+        F --> L[Tag-Based Search<br/>Categorized Access]
+    end
+```
+
+### 2. Memory Development Guidelines
+
+#### Context Relationship Management
+
+```python
+# ✅ Good: Proper context relationship handling
+class EnhancedMemoryManager:
+    """Manages enhanced memory with context relationships"""
+
+    def __init__(self, repository: EnhancedMemoryRepository):
+        self.repository = repository
+        self.relationship_manager = ContextRelationshipManager()
+
+    def store_context_entry(
+        self,
+        conversation_id: str,
+        content: str,
+        context_type: str = "conversation",
+        importance_score: float = 0.5,
+        tags: List[str] = None,
+        relationships: List[str] = None
+    ) -> str:
+        """Store memory entry with context relationships"""
+
+        # Validate inputs
+        if not self._validate_content(content):
+            raise ValidationError("Invalid memory content")
+
+        # Calculate importance score if not provided
+        if importance_score == 0.5:  # Default value
+            importance_score = self._calculate_importance_score(content)
+
+        # Extract tags from content
+        if not tags:
+            tags = self._extract_tags(content)
+
+        # Create memory entry
+        entry = EnhancedMemoryEntry(
+            conversation_id=conversation_id,
+            content=content,
+            context_type=context_type,
+            importance_score=importance_score,
+            tags=tags or []
+        )
+
+        # Store entry
+        entry_id = self.repository.create(entry)
+
+        # Create relationships if provided
+        if relationships:
+            self._create_relationships(entry_id, relationships)
+
+        return entry_id
+
+    def _calculate_importance_score(self, content: str) -> float:
+        """Calculate importance score based on content analysis"""
+        # Implementation details...
+        pass
+
+    def _extract_tags(self, content: str) -> List[str]:
+        """Extract relevant tags from content"""
+        # Implementation details...
+        pass
+
+    def _create_relationships(self, entry_id: str, related_ids: List[str]):
+        """Create relationships between memory entries"""
+        for related_id in related_ids:
+            relationship = ContextRelationship(
+                from_entry_id=entry_id,
+                to_entry_id=related_id,
+                relationship_type="related_to"
+            )
+            self.relationship_manager.create_relationship(relationship)
+```
+
+#### Memory Query Patterns
+
+```python
+# ✅ Good: Context-aware memory retrieval
+def retrieve_relevant_context(
+    self,
+    conversation_id: str,
+    context_type: str = None,
+    importance_threshold: float = 0.3,
+    relationship_filter: str = None,
+    limit: int = 10
+) -> List[EnhancedMemoryEntry]:
+    """Retrieve context-aware memory entries"""
+
+    # Build query with filters
+    query_filters = {
+        "conversation_id": conversation_id,
+        "importance_threshold": importance_threshold
+    }
+
+    if context_type:
+        query_filters["context_type"] = context_type
+
+    # Get base entries
+    entries = self.repository.query_entries(**query_filters)
+
+    # Apply relationship filtering
+    if relationship_filter:
+        entries = self._filter_by_relationships(entries, relationship_filter)
+
+    # Sort by relevance and importance
+    entries = self._sort_by_relevance(entries, conversation_id)
+
+    return entries[:limit]
+
+def _filter_by_relationships(
+    self,
+    entries: List[EnhancedMemoryEntry],
+    relationship_filter: str
+) -> List[EnhancedMemoryEntry]:
+    """Filter entries based on relationship criteria"""
+    # Implementation details...
+    pass
+
+def _sort_by_relevance(
+    self,
+    entries: List[EnhancedMemoryEntry],
+    conversation_id: str
+) -> List[EnhancedMemoryEntry]:
+    """Sort entries by relevance to conversation context"""
+    # Implementation details...
+    pass
+```
+
+### 3. Memory Testing Guidelines
+
+```python
+# ✅ Good: Comprehensive memory system testing
+def test_enhanced_memory_system():
+    """Test enhanced memory system functionality"""
+
+    # Test context creation
+    memory_manager = EnhancedMemoryManager(repository)
+
+    # Store context entry
+    entry_id = memory_manager.store_context_entry(
+        conversation_id="test_chat_123",
+        content="How do I create a REST API?",
+        context_type="conversation",
+        importance_score=0.8,
+        tags=["api", "development", "question"]
+    )
+
+    assert entry_id is not None
+    assert len(entry_id) == 36  # UUID format
+
+    # Test context retrieval
+    entries = memory_manager.retrieve_relevant_context(
+        conversation_id="test_chat_123",
+        importance_threshold=0.5
+    )
+
+    assert len(entries) == 1
+    assert entries[0].content == "How do I create a REST API?"
+    assert entries[0].importance_score == 0.8
+
+    # Test relationship filtering
+    related_entries = memory_manager.retrieve_relevant_context(
+        conversation_id="test_chat_123",
+        relationship_filter="api_related"
+    )
+
+    # Verify filtering works correctly
+    assert len(related_entries) >= 0
+
+# ✅ Good: Context relationship testing
+def test_memory_relationships():
+    """Test memory relationship functionality"""
+
+    # Create multiple related entries
+    api_entry_id = memory_manager.store_context_entry(
+        conversation_id="test_chat_123",
+        content="REST API design principles",
+        context_type="reference",
+        tags=["api", "architecture"]
+    )
+
+    auth_entry_id = memory_manager.store_context_entry(
+        conversation_id="test_chat_123",
+        content="Authentication strategies",
+        context_type="reference",
+        tags=["auth", "security"],
+        relationships=[api_entry_id]
+    )
+
+    # Retrieve related entries
+    related_entries = memory_manager.retrieve_relevant_context(
+        conversation_id="test_chat_123",
+        relationship_filter="api_related"
+    )
+
+    # Verify relationships work
+    assert len(related_entries) > 0
+    assert auth_entry_id in [e.id for e in related_entries]
+```
+
+### 4. Memory Performance Optimization
+
+```python
+# ✅ Good: Memory query optimization
+class OptimizedMemoryRepository(BaseRepository[EnhancedMemoryEntry]):
+    """Optimized memory repository with indexing"""
+
+    def __init__(self):
+        super().__init__("enhanced_memory_entries")
+        self._create_indexes()
+
+    def _create_indexes(self):
+        """Create performance indexes"""
+        # Index for conversation-based queries
+        self.execute_query("""
+            CREATE INDEX IF NOT EXISTS ix_memory_conversation_importance
+            ON enhanced_memory_entries (conversation_id, importance_score DESC)
+        """)
+
+        # Index for tag-based queries
+        self.execute_query("""
+            CREATE INDEX IF NOT EXISTS ix_memory_tags_gin
+            ON enhanced_memory_entries USING GIN (tags)
+        """)
+
+        # Index for relationship queries
+        self.execute_query("""
+            CREATE INDEX IF NOT EXISTS ix_memory_relationships
+            ON context_relationships (from_entry_id, to_entry_id)
+        """)
+
+    def query_by_importance_range(
+        self,
+        conversation_id: str,
+        min_importance: float,
+        max_importance: float
+    ) -> List[EnhancedMemoryEntry]:
+        """Query entries by importance range with optimized indexing"""
+        query = """
+        SELECT * FROM enhanced_memory_entries
+        WHERE conversation_id = %s
+        AND importance_score BETWEEN %s AND %s
+        ORDER BY importance_score DESC
+        """
+
+        return self.execute_query(query, (conversation_id, min_importance, max_importance))
+
+    def query_by_tags(self, tags: List[str]) -> List[EnhancedMemoryEntry]:
+        """Query entries by tags using GIN index"""
+        # Convert tags to PostgreSQL array syntax
+        tag_array = "{" + ",".join(f'"{tag}"' for tag in tags) + "}"
+
+        query = """
+        SELECT * FROM enhanced_memory_entries
+        WHERE tags @> %s::text[]
+        ORDER BY importance_score DESC
+        """
+
+        return self.execute_query(query, (tag_array,))
+```
+
+## 🛠️ Advanced Tools Development
+
+### 1. Tool Architecture Overview
+
+The advanced tool ecosystem provides comprehensive development capabilities:
+
+```mermaid
+graph TB
+    subgraph "Tool Categories"
+        A[Web Scraping<br/>Data Collection] --> B[Code Analysis<br/>Quality Assessment]
+        A --> C[Terminal Execution<br/>Command Processing]
+        B --> D[Database Tools<br/>Schema Analysis]
+        C --> E[Testing Tools<br/>Validation]
+        D --> F[Project Management<br/>Task Tracking]
+    end
+
+    subgraph "Core Components"
+        G[Tool Registry<br/>Tool Discovery] --> H[Execution Engine<br/>Safe Execution]
+        H --> I[Security Manager<br/>Sandboxing]
+        I --> J[Result Processor<br/>Output Handling]
+        J --> K[Context Integration<br/>Memory Updates]
+    end
+
+    subgraph "Integration Points"
+        G --> L[MCP Protocol<br/>Tool Interface]
+        H --> M[AI Enhancement<br/>Optional Processing]
+        J --> N[Memory System<br/>Context Storage]
+    end
+```
+
+### 2. Tool Development Standards
+
+#### Web Scraping Tools
+
+```python
+# ✅ Good: Secure and robust web scraping
+class WebScrapingTool:
+    """Secure web scraping with rate limiting and error handling"""
+
+    def __init__(self, rate_limiter: RateLimiter, cache_manager: CacheManager):
+        self.rate_limiter = rate_limiter
+        self.cache_manager = cache_manager
+        self.session = self._create_secure_session()
+
+    def _create_secure_session(self) -> requests.Session:
+        """Create secure HTTP session with proper headers"""
+        session = requests.Session()
+
+        # Security headers
+        session.headers.update({
+            'User-Agent': 'MCP-PBA-TUNNEL/1.0 (Research Bot)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        })
+
+        # Timeout settings
+        session.timeout = 30
+
+        return session
+
+    def scrape_webpage(
+        self,
+        url: str,
+        extract_selectors: Dict[str, str] = None,
+        output_format: str = "json"
+    ) -> Dict[str, Any]:
+        """Scrape webpage with security and caching"""
+
+        # Rate limiting
+        if not self.rate_limiter.check_limit(url):
+            raise RateLimitError(f"Rate limit exceeded for {url}")
+
+        # Check cache first
+        cache_key = f"scrape_{hash(url)}"
+        cached_result = self.cache_manager.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        try:
+            # Validate URL
+            if not self._validate_url(url):
+                raise ValidationError(f"Invalid URL: {url}")
+
+            # Make request
+            response = self.session.get(url, timeout=30)
+            response.raise_for_status()
+
+            # Parse content
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Extract data
+            extracted_data = {}
+            if extract_selectors:
+                for key, selector in extract_selectors.items():
+                    elements = soup.select(selector)
+                    extracted_data[key] = [elem.get_text().strip() for elem in elements]
+
+            # Format output
+            result = {
+                "url": url,
+                "status_code": response.status_code,
+                "content_length": len(response.content),
+                "extracted_data": extracted_data,
+                "scraped_at": datetime.utcnow().isoformat()
+            }
+
+            # Cache result
+            self.cache_manager.set(cache_key, result, ttl=3600)  # 1 hour
+
+            return result
+
+        except requests.RequestException as e:
+            raise ScrapingError(f"Failed to scrape {url}: {str(e)}")
+        except Exception as e:
+            raise ScrapingError(f"Unexpected error scraping {url}: {str(e)}")
+
+    def _validate_url(self, url: str) -> bool:
+        """Validate URL for security"""
+        try:
+            parsed = urlparse(url)
+            # Only allow HTTP/HTTPS
+            if parsed.scheme not in ['http', 'https']:
+                return False
+            # Check for suspicious patterns
+            if 'javascript:' in url.lower() or 'data:' in url.lower():
+                return False
+            return True
+        except Exception:
+            return False
+```
+
+#### Code Analysis Tools
+
+```python
+# ✅ Good: Comprehensive code analysis
+class CodeAnalysisTool:
+    """Comprehensive code analysis with multiple metrics"""
+
+    def __init__(self, complexity_analyzer: ComplexityAnalyzer):
+        self.complexity_analyzer = complexity_analyzer
+        self.metrics_calculators = {
+            'cyclomatic_complexity': self._calculate_cyclomatic_complexity,
+            'maintainability_index': self._calculate_maintainability_index,
+            'lines_of_code': self._count_lines_of_code,
+            'code_duplication': self._detect_duplication,
+            'security_issues': self._scan_security_issues
+        }
+
+    def analyze_codebase(
+        self,
+        file_path: str,
+        analysis_types: List[str] = None,
+        output_format: str = "detailed"
+    ) -> Dict[str, Any]:
+        """Analyze codebase with multiple metrics"""
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Code file not found: {file_path}")
+
+        # Default to all analysis types
+        if not analysis_types:
+            analysis_types = list(self.metrics_calculators.keys())
+
+        # Read and parse code
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                code_content = f.read()
+        except UnicodeDecodeError:
+            # Try different encodings
+            with open(file_path, 'r', encoding='latin-1') as f:
+                code_content = f.read()
+
+        # Analyze code
+        analysis_results = {}
+        for analysis_type in analysis_types:
+            if analysis_type in self.metrics_calculators:
+                try:
+                    result = self.metrics_calculators[analysis_type](code_content, file_path)
+                    analysis_results[analysis_type] = result
+                except Exception as e:
+                    analysis_results[analysis_type] = {
+                        "error": str(e),
+                        "status": "failed"
+                    }
+
+        # Generate summary
+        summary = self._generate_analysis_summary(analysis_results)
+
+        # Format output
+        result = {
+            "file_path": file_path,
+            "file_size": os.path.getsize(file_path),
+            "analysis_timestamp": datetime.utcnow().isoformat(),
+            "analysis_types": analysis_types,
+            "results": analysis_results,
+            "summary": summary
+        }
+
+        return result
+
+    def _calculate_cyclomatic_complexity(self, code: str, file_path: str) -> Dict[str, Any]:
+        """Calculate cyclomatic complexity"""
+        # Implementation using radon or similar tool
+        pass
+
+    def _calculate_maintainability_index(self, code: str, file_path: str) -> Dict[str, Any]:
+        """Calculate maintainability index"""
+        # Implementation details...
+        pass
+
+    def _count_lines_of_code(self, code: str, file_path: str) -> Dict[str, Any]:
+        """Count lines of code"""
+        lines = code.split('\n')
+        total_lines = len(lines)
+        code_lines = len([line for line in lines if line.strip() and not line.strip().startswith('#')])
+        comment_lines = len([line for line in lines if line.strip().startswith('#')])
+        blank_lines = len([line for line in lines if not line.strip()])
+
+        return {
+            "total_lines": total_lines,
+            "code_lines": code_lines,
+            "comment_lines": comment_lines,
+            "blank_lines": blank_lines,
+            "comment_ratio": comment_lines / total_lines if total_lines > 0 else 0
+        }
+
+    def _detect_duplication(self, code: str, file_path: str) -> Dict[str, Any]:
+        """Detect code duplication"""
+        # Implementation details...
+        pass
+
+    def _scan_security_issues(self, code: str, file_path: str) -> Dict[str, Any]:
+        """Scan for security issues"""
+        # Implementation details...
+        pass
+
+    def _generate_analysis_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate analysis summary"""
+        # Implementation details...
+        pass
+```
+
+#### Terminal Execution Tools
+
+```python
+# ✅ Good: Secure terminal execution
+class TerminalExecutionTool:
+    """Secure terminal command execution with sandboxing"""
+
+    def __init__(self, security_manager: SecurityManager):
+        self.security_manager = security_manager
+        self.execution_context = {}
+
+    def execute_command(
+        self,
+        command: str,
+        working_directory: str = None,
+        environment: Dict[str, str] = None,
+        timeout: int = 300,
+        max_output_size: int = 10 * 1024 * 1024  # 10MB
+    ) -> Dict[str, Any]:
+        """Execute command securely"""
+
+        # Validate command
+        if not self._validate_command(command):
+            raise SecurityError(f"Command not allowed: {command}")
+
+        # Set up execution environment
+        exec_env = os.environ.copy()
+        if environment:
+            exec_env.update(environment)
+
+        # Set working directory
+        work_dir = working_directory or os.getcwd()
+        if not os.path.exists(work_dir):
+            raise FileNotFoundError(f"Working directory not found: {work_dir}")
+
+        # Execute command
+        try:
+            result = subprocess.run(
+                command,
+                shell=True,
+                cwd=work_dir,
+                env=exec_env,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+
+            # Validate output size
+            if len(result.stdout) > max_output_size or len(result.stderr) > max_output_size:
+                raise OutputSizeError("Command output too large")
+
+            return {
+                "command": command,
+                "working_directory": work_dir,
+                "return_code": result.returncode,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "execution_time": result.execution_time,
+                "status": "success"
+            }
+
+        except subprocess.TimeoutExpired:
+            raise TimeoutError(f"Command timed out after {timeout} seconds")
+        except Exception as e:
+            raise ExecutionError(f"Command execution failed: {str(e)}")
+
+    def _validate_command(self, command: str) -> bool:
+        """Validate command for security"""
+        # Block dangerous commands
+        dangerous_patterns = [
+            r'rm\s+-rf',
+            r'sudo\s+',
+            r'chmod\s+777',
+            r'eval\s+',
+            r'exec\s+',
+            r'system\s*\(',
+            r'subprocess\s*\('
+        ]
+
+        for pattern in dangerous_patterns:
+            if re.search(pattern, command, re.IGNORECASE):
+                return False
+
+        return True
+
+    def _sanitize_environment(self, environment: Dict[str, str]) -> Dict[str, str]:
+        """Sanitize environment variables"""
+        # Remove sensitive environment variables
+        sensitive_vars = [
+            'AWS_ACCESS_KEY_ID',
+            'AWS_SECRET_ACCESS_KEY',
+            'DATABASE_PASSWORD',
+            'API_KEY',
+            'SECRET_KEY'
+        ]
+
+        sanitized = environment.copy()
+        for var in sensitive_vars:
+            if var in sanitized:
+                sanitized[var] = '***REDACTED***'
+
+        return sanitized
+```
+
+### 3. Tool Testing Guidelines
+
+```python
+# ✅ Good: Comprehensive tool testing
+def test_web_scraping_tool():
+    """Test web scraping functionality"""
+
+    # Mock HTTP responses
+    with patch('requests.Session.get') as mock_get:
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.content = '<html><body><h1>Test</h1><p>Data</p></body></html>'
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        # Test scraping
+        tool = WebScrapingTool(rate_limiter=MockRateLimiter(), cache_manager=MockCache())
+
+        result = tool.scrape_webpage(
+            url="https://example.com",
+            extract_selectors={"title": "h1", "content": "p"}
+        )
+
+        assert result["url"] == "https://example.com"
+        assert result["status_code"] == 200
+        assert "title" in result["extracted_data"]
+        assert "content" in result["extracted_data"]
+
+# ✅ Good: Code analysis testing
+def test_code_analysis_tool():
+    """Test code analysis functionality"""
+
+    tool = CodeAnalysisTool(complexity_analyzer=MockComplexityAnalyzer())
+
+    # Test with sample code
+    sample_code = '''
+def complex_function():
+    if True:
+        for i in range(10):
+            if i > 5:
+                return i
+    return 0
+'''
+
+    with patch('builtins.open', mock_open(read_data=sample_code)):
+        result = tool.analyze_codebase(
+            file_path="/path/to/sample.py",
+            analysis_types=["cyclomatic_complexity", "lines_of_code"]
+        )
+
+        assert result["file_path"] == "/path/to/sample.py"
+        assert "results" in result
+        assert "cyclomatic_complexity" in result["results"]
+        assert "lines_of_code" in result["results"]
+
+# ✅ Good: Terminal execution testing
+def test_terminal_execution_tool():
+    """Test terminal execution functionality"""
+
+    tool = TerminalExecutionTool(security_manager=MockSecurityManager())
+
+    # Test with safe command
+    result = tool.execute_command(
+        command="echo 'Hello World'",
+        timeout=10
+    )
+
+    assert result["command"] == "echo 'Hello World'"
+    assert result["return_code"] == 0
+    assert result["stdout"].strip() == "Hello World"
+    assert result["status"] == "success"
+
+    # Test security validation
+    with pytest.raises(SecurityError):
+        tool.execute_command("rm -rf /")
+
+    # Test timeout
+    with pytest.raises(TimeoutError):
+        tool.execute_command("sleep 5", timeout=1)
+```
+
+### 4. Tool Integration Patterns
+
+```python
+# ✅ Good: Tool integration with memory system
+class ToolIntegrationManager:
+    """Manages tool integration with enhanced memory"""
+
+    def __init__(self, memory_manager: EnhancedMemoryManager):
+        self.memory_manager = memory_manager
+        self.tool_registry = ToolRegistry()
+
+    def execute_tool_with_memory(
+        self,
+        tool_name: str,
+        parameters: Dict[str, Any],
+        conversation_id: str,
+        store_results: bool = True
+    ) -> Dict[str, Any]:
+        """Execute tool with memory integration"""
+
+        # Get tool from registry
+        tool = self.tool_registry.get_tool(tool_name)
+
+        # Store execution context in memory
+        execution_context_id = self.memory_manager.store_context_entry(
+            conversation_id=conversation_id,
+            content=f"Executing tool: {tool_name} with parameters: {parameters}",
+            context_type="tool_execution",
+            importance_score=0.7,
+            tags=["tool_execution", tool_name]
+        )
+
+        try:
+            # Execute tool
+            result = tool.execute(parameters)
+
+            # Store results in memory if requested
+            if store_results:
+                result_id = self.memory_manager.store_context_entry(
+                    conversation_id=conversation_id,
+                    content=f"Tool {tool_name} results: {result}",
+                    context_type="tool_result",
+                    importance_score=0.6,
+                    tags=["tool_result", tool_name],
+                    relationships=[execution_context_id]
+                )
+
+                # Create relationship between execution and results
+                self.memory_manager.relationship_manager.create_relationship(
+                    from_entry_id=execution_context_id,
+                    to_entry_id=result_id,
+                    relationship_type="execution_result"
+                )
+
+            return result
+
+        except Exception as e:
+            # Store error in memory
+            error_id = self.memory_manager.store_context_entry(
+                conversation_id=conversation_id,
+                content=f"Tool {tool_name} failed: {str(e)}",
+                context_type="tool_error",
+                importance_score=0.9,  # High importance for errors
+                tags=["tool_error", tool_name, "error"],
+                relationships=[execution_context_id]
+            )
+
+            raise e
 ```
 
 ## 🤝 Collaboration Guidelines

@@ -267,6 +267,102 @@ with database_transaction(SessionLocal) as session:
 - Exception safety
 - Clear resource management
 
+### Enhanced Memory Context Pattern
+
+**Location**: `data/patterns.py` - `MemoryContextManager` class
+
+**Purpose**: Manages enhanced memory with context relationships and importance scoring.
+
+```python
+# Usage
+@contextmanager
+def memory_context_manager(conversation_id: str, importance_threshold: float = 0.5):
+    """Context manager for enhanced memory operations"""
+    memory_manager = EnhancedMemoryManager()
+    context = memory_manager.create_context(conversation_id, importance_threshold)
+
+    try:
+        yield context
+        memory_manager.persist_context(context)
+    except Exception as e:
+        memory_manager.rollback_context(context)
+        raise e
+    finally:
+        memory_manager.cleanup_context(context)
+
+# Usage with context relationships
+with memory_context_manager("chat_123", importance_threshold=0.8) as ctx:
+    # Store memory entry with relationships
+    memory_id = ctx.store_entry(
+        content="API design discussion",
+        context_type="conversation",
+        importance_score=0.9,
+        tags=["api", "architecture", "design"],
+        relationships=["previous_api_context"]
+    )
+
+    # Retrieve related context
+    related_entries = ctx.get_related_entries(
+        relationship_filter="api_related",
+        importance_threshold=0.6
+    )
+```
+
+**Benefits**:
+
+- Automatic context persistence and cleanup
+- Relationship management with importance scoring
+- Context-aware memory retrieval
+- Exception-safe memory operations
+
+### Tool Execution Pattern
+
+**Location**: `data/patterns.py` - `ToolExecutionContext` class
+
+**Purpose**: Manages tool execution with security, validation, and result processing.
+
+```python
+# Usage
+@contextmanager
+def tool_execution_context(tool_name: str, security_level: str = "standard"):
+    """Context manager for safe tool execution"""
+    executor = ToolExecutor()
+    context = executor.create_execution_context(tool_name, security_level)
+
+    try:
+        yield context
+        executor.validate_execution(context)
+        executor.process_results(context)
+    except SecurityException as e:
+        executor.handle_security_violation(context, e)
+        raise e
+    except ExecutionException as e:
+        executor.handle_execution_error(context, e)
+        raise e
+    finally:
+        executor.cleanup_execution_context(context)
+
+# Usage with different tools
+with tool_execution_context("code_analyzer", security_level="high") as ctx:
+    # Execute code analysis safely
+    result = ctx.execute_tool(
+        operation="analyze_complexity",
+        file_path="/path/to/code.py",
+        metrics=["cyclomatic_complexity", "maintainability_index"]
+    )
+
+    # Process and validate results
+    validated_result = ctx.validate_result(result)
+    ctx.store_result(validated_result)
+```
+
+**Benefits**:
+
+- Secure tool execution with sandboxing
+- Automatic result validation and processing
+- Security violation handling
+- Execution context cleanup and resource management
+
 ## 📊 Integration in MCP-PBA-TUNNEL
 
 ### Main Components Using Patterns

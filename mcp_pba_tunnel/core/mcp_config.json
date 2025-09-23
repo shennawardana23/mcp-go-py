@@ -49,6 +49,101 @@
                 "session_id": "string"
             }
         },
+        "enhanced_memory": {
+            "name": "enhanced_memory",
+            "description": "Enhanced memory management with context and relationships",
+            "handler": "enhanced_memory_handler",
+            "parameters": {
+                "operation": "store|retrieve|relate|context|clear",
+                "conversation_id": "string",
+                "content": "string",
+                "context_type": "string",
+                "importance_score": "number",
+                "tags": "array",
+                "relationship_type": "string",
+                "target_memory_id": "string",
+                "strength": "number"
+            }
+        },
+        "code_analysis": {
+            "name": "code_analysis",
+            "description": "Analyze code files for patterns, complexity, and suggestions",
+            "handler": "code_analysis_handler",
+            "parameters": {
+                "file_path": "string",
+                "analysis_type": "complexity|patterns|security|performance",
+                "output_format": "summary|detailed|json"
+            }
+        },
+        "file_operations": {
+            "name": "file_operations",
+            "description": "Read, write, and manipulate files in the project",
+            "handler": "file_operations_handler",
+            "parameters": {
+                "operation": "read|write|search|replace",
+                "file_path": "string",
+                "content": "string",
+                "search_pattern": "string",
+                "replace_with": "string"
+            }
+        },
+        "terminal_execution": {
+            "name": "terminal_execution",
+            "description": "Execute terminal commands safely",
+            "handler": "terminal_execution_handler",
+            "parameters": {
+                "command": "string",
+                "working_directory": "string",
+                "environment_vars": "object",
+                "timeout": "number"
+            }
+        },
+        "sequential_reasoning": {
+            "name": "sequential_reasoning",
+            "description": "Multi-step reasoning and problem solving",
+            "handler": "sequential_reasoning_handler",
+            "parameters": {
+                "problem": "string",
+                "reasoning_steps": "number",
+                "constraints": "array",
+                "evaluation_criteria": "array",
+                "context_types": "array"
+            }
+        },
+        "project_tracker": {
+            "name": "project_tracker",
+            "description": "Track project progress and tasks",
+            "handler": "project_tracker_handler",
+            "parameters": {
+                "operation": "create_task|update_status|get_progress|generate_report",
+                "task_data": "object",
+                "project_id": "string",
+                "task_id": "string",
+                "status": "string"
+            }
+        },
+        "data_analyzer": {
+            "name": "data_analyzer",
+            "description": "Analyze data patterns and generate insights",
+            "handler": "data_analyzer_handler",
+            "parameters": {
+                "data_source": "string",
+                "analysis_type": "patterns|trends|correlations|anomalies",
+                "parameters": "object",
+                "output_format": "string"
+            }
+        },
+        "test_generator": {
+            "name": "test_generator",
+            "description": "Generate and execute tests automatically",
+            "handler": "test_generator_handler",
+            "parameters": {
+                "code_file": "string",
+                "test_framework": "string",
+                "coverage_target": "number",
+                "test_types": "array"
+            }
+        },
         "prompt_chain_be": {
             "name": "prompt_chain_be",
             "description": "Backend prompt chaining for complex workflows",
@@ -204,6 +299,77 @@
                 "initial_input",
                 "chain_steps",
                 "output_processing"
+            ]
+        },
+        "advanced_reasoning_chain": {
+            "name": "Advanced Reasoning Chain Template",
+            "description": "Advanced multi-step reasoning with context integration",
+            "category": "techniques",
+            "variables": [
+                "problem_statement",
+                "context_data",
+                "constraints",
+                "evaluation_criteria"
+            ]
+        },
+        "code_architecture_design": {
+            "name": "Code Architecture Design Template",
+            "description": "Advanced code architecture and design patterns",
+            "category": "architecture",
+            "variables": [
+                "requirements",
+                "existing_codebase",
+                "constraints",
+                "performance_requirements"
+            ]
+        },
+        "advanced_data_analysis": {
+            "name": "Advanced Data Analysis Template",
+            "description": "Sophisticated data analysis and insights generation",
+            "category": "data",
+            "variables": [
+                "dataset_description",
+                "data_schema",
+                "analysis_objectives",
+                "analysis_type",
+                "output_format"
+            ]
+        },
+        "comprehensive_testing_strategy": {
+            "name": "Comprehensive Testing Strategy Template",
+            "description": "Advanced testing strategy with multiple testing types",
+            "category": "quality",
+            "variables": [
+                "system_description",
+                "architecture_type",
+                "technology_stack",
+                "compliance_requirements"
+            ]
+        },
+        "technical_documentation": {
+            "name": "Technical Documentation Template",
+            "description": "Comprehensive technical documentation generation",
+            "category": "communication",
+            "variables": [
+                "component_name",
+                "component_type",
+                "implementation_language",
+                "include_examples",
+                "audience_type",
+                "documentation_format"
+            ]
+        },
+        "meta_prompt_optimization": {
+            "name": "Meta-Prompt Optimization Template",
+            "description": "Meta-prompting for generating optimized prompts",
+            "category": "techniques",
+            "variables": [
+                "target_task",
+                "task_description",
+                "context_information",
+                "target_audience",
+                "complexity_level",
+                "response_format"
             ]
         }
     },

@@ -44,14 +44,16 @@ graph TB
 
 ### 1. FastAPI MCP Server (`mcp_pba_tunnel/server/fastapi_mcp_server.py`)
 
-The core FastAPI-based MCP server implementation that handles all prompt template requests and manages AI integration for prompt engineering.
+The core FastAPI-based MCP server implementation that handles all prompt template requests and manages AI integration for prompt engineering, now enhanced with advanced tool capabilities.
 
 **Key Components:**
 
 - **Main Application**: FastAPI server handling MCP protocol and REST API requests
 - **Request Handlers**: Route handlers for MCP and REST endpoints
-- **Data Manager Integration**: Uses the refactored repository/service layer
+- **Enhanced Tool Integration**: Advanced tools including web scraping, code analysis, terminal execution
+- **Data Manager Integration**: Uses the refactored repository/service layer with enhanced memory
 - **Background Tasks**: Celery integration for async processing
+- **Advanced Reasoning**: Multi-step reasoning chains and context-aware planning tools
 
 ### 2. Data Models Layer (`mcp_pba_tunnel/data/models/`)
 
@@ -87,15 +89,68 @@ Business logic layer implementing use cases and application rules.
 - **ValidationService**: Data validation utilities
 - **Business Rules**: Domain-specific logic and constraints
 
-### 5. Main Facade (`mcp_pba_tunnel/data/project_manager.py`)
+### 5. Enhanced Memory System (`mcp_pba_tunnel/data/models/prompt_models.py`)
 
-Orchestrates the repository and service layers using the Facade pattern.
+Sophisticated context management with relationships and importance scoring.
+
+**Features:**
+
+- **Context Relationships**: Link memory entries with importance-based relationships
+- **Importance Scoring**: Weighted memory entries for context-aware retrieval
+- **Tag-Based Organization**: Flexible categorization and filtering system
+- **Metadata Enrichment**: Rich context data with timestamps and source tracking
+- **Context Types**: Support for different memory categories (conversation, task, reference)
+
+**Enhanced Memory Models:**
+
+- **ContextRelationship**: Models relationships between memory entries
+- **ContextType**: Enumeration for different memory categories
+- **EnhancedMemoryEntry**: Advanced memory entry with importance scoring and tags
+
+### 6. Advanced Tool Components
+
+#### Web Scraping & API Integration
+
+- **BeautifulSoup4**: HTML/XML parsing and data extraction
+- **Requests/httpx**: HTTP client for API interactions
+- **Data Processing**: JSON, XML, and structured data handling
+
+#### Code Analysis Tools
+
+- **Complexity Analysis**: Cyclomatic complexity, maintainability index
+- **Code Quality Metrics**: Lines of code, duplication detection
+- **Performance Analysis**: Execution time, memory usage tracking
+
+#### Terminal Execution
+
+- **Command Processing**: Safe command execution with timeouts
+- **Environment Management**: Working directory and environment variable control
+- **Output Capture**: Structured result handling and error management
+
+#### Database Query & Analysis
+
+- **Schema Analysis**: Table structure, relationships, and metadata extraction
+- **Query Optimization**: Performance analysis and improvement suggestions
+- **Data Profiling**: Statistics and pattern analysis
+
+#### Testing & Validation Tools
+
+- **Test Execution**: Automated test running with coverage reporting
+- **Code Validation**: Linting, type checking, and security scanning
+- **Performance Testing**: Load testing and benchmark analysis
+
+### 7. Main Facade (`mcp_pba_tunnel/data/project_manager.py`)
+
+Orchestrates the repository and service layers using the Facade pattern, now enhanced with advanced tool capabilities.
 
 **Features:**
 
 - **Template Management**: CRUD operations for prompt templates
+- **Enhanced Memory Management**: Sophisticated context management with relationships
 - **Usage Tracking**: Analytics and performance monitoring
-- **AI Integration**: Connection to external AI services
+- **Advanced Tool Integration**: Web scraping, code analysis, terminal execution
+- **Project Management**: Task tracking, database tools, testing capabilities
+- **AI Integration**: Connection to external AI services with advanced reasoning
 - **Data Validation**: Input sanitization and validation
 - **Migration Management**: Database schema evolution
 
@@ -106,10 +161,97 @@ Orchestrates the repository and service layers using the Facade pattern.
 - **Data**: Database schema and data modeling templates
 - **Quality**: Testing strategy and code quality templates
 - **Communication**: Documentation and presentation templates
+- **Techniques**: Advanced reasoning and planning templates
 
-### 4. MCP Protocol Integration
+### 8. MCP Protocol Integration
 
 Direct MCP protocol endpoints for AI assistants to interact with the prompt engineering system. No separate client needed - AI models can call the server endpoints directly.
+
+## 🎯 Advanced Reasoning Architecture
+
+### Context-Aware Planning System
+
+The enhanced MCP-PBA-TUNNEL includes sophisticated reasoning capabilities:
+
+```mermaid
+graph TB
+    subgraph "Advanced Reasoning Pipeline"
+        A[Problem Input<br/>Complex Task] --> B[Context Gathering<br/>Memory + Relationships]
+        B --> C[Multi-Step Analysis<br/>Sequential Reasoning]
+        C --> D[Solution Planning<br/>Structured Approach]
+        D --> E[Execution Strategy<br/>Step-by-Step Plan]
+        E --> F[Validation & Refinement<br/>Quality Assurance]
+    end
+
+    subgraph "Memory Integration"
+        G[Enhanced Memory<br/>Context Storage] --> B
+        H[Relationship Mapping<br/>Context Linking] --> B
+        I[Importance Scoring<br/>Relevance Ranking] --> C
+    end
+
+    subgraph "Tool Integration"
+        J[Web Scraping<br/>External Data] --> C
+        K[Code Analysis<br/>Technical Assessment] --> D
+        L[Database Queries<br/>Data Validation] --> E
+        M[Testing Tools<br/>Validation] --> F
+    end
+```
+
+### Enhanced Tool Ecosystem
+
+**Web Scraping & API Integration:**
+
+- Real-time data fetching from external APIs
+- HTML/XML parsing and structured data extraction
+- API response processing and transformation
+- Rate limiting and error handling
+
+**Code Analysis & Quality:**
+
+- Cyclomatic complexity analysis
+- Maintainability index calculation
+- Code duplication detection
+- Performance profiling and optimization suggestions
+
+**Database Tools:**
+
+- Schema analysis and documentation
+- Query performance optimization
+- Data profiling and statistics
+- Relationship mapping and dependency analysis
+
+**Project Management:**
+
+- Task breakdown and estimation
+- Progress tracking and milestone management
+- Resource allocation and scheduling
+- Risk assessment and mitigation planning
+
+## 🔒 Security Architecture
+
+### Enhanced Security Model
+
+```mermaid
+graph TD
+    A[Input Validation<br/>Comprehensive Sanitization] --> B[Authentication<br/>JWT Token Validation]
+    B --> C[Authorization<br/>Role-Based Access Control]
+    C --> D[Rate Limiting<br/>API Request Throttling]
+    D --> E[Audit Logging<br/>Security Event Tracking]
+    E --> F[Data Encryption<br/>Sensitive Information Protection]
+    F --> G[Secure Headers<br/>HTTP Security Headers]
+    G --> H[Monitoring<br/>Security Event Detection]
+```
+
+### Advanced Security Features
+
+- **Enhanced Input Validation**: Multi-layer validation with sanitization
+- **JWT Authentication**: Secure token-based authentication system
+- **Role-Based Access Control**: Granular permission management
+- **Rate Limiting**: Protection against abuse and DoS attacks
+- **Audit Logging**: Comprehensive security event tracking
+- **Data Encryption**: Encryption at rest and in transit
+- **Security Headers**: HTTP security headers for web protection
+- **Vulnerability Scanning**: Automated security vulnerability detection
 
 ## 🔄 Request Flow Architecture
 

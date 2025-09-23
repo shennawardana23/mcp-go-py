@@ -23,6 +23,8 @@ sequenceDiagram
     participant PR as PromptRepository
     participant DB as Database Layer
     participant A as AI Integration
+    participant M as Enhanced Memory
+    participant T as Tool System
 
     C->>F: HTTP POST /mcp/prompts/list
     Note over F: Input Validation & Routing
@@ -39,6 +41,22 @@ sequenceDiagram
     F->>C: Return HTTP Response
 
     Note over C: Client processes response
+
+    %% Enhanced Memory Flow
+    C->>F: POST /mcp/enhanced_memory/store
+    F->>M: Store Context with Relationships
+    M->>DB: Persist Enhanced Memory Entry
+    DB->>M: Confirm Storage
+    M->>F: Return Memory ID
+    F->>C: Memory Stored Successfully
+
+    %% Advanced Tool Execution Flow
+    C->>F: POST /mcp/tools/code_analyzer
+    F->>T: Execute Code Analysis Tool
+    T->>A: Optional AI Enhancement
+    A->>T: Return Enhanced Analysis
+    T->>F: Format Tool Results
+    F->>C: Return Analysis Results
 ```
 
 ### Detailed Request Flow Components with Layered Architecture

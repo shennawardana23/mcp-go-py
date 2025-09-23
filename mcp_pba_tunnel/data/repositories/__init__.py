@@ -8,7 +8,9 @@ from .prompt_repository import (
     PromptTemplateRepository,
     PromptUsageRepository,
     GeneratedContentRepository,
-    MemoryRepository
+    MemoryRepository,
+    EnhancedMemoryRepository,
+    ContextRelationshipRepository
 )
 from .ai_repository import AIConfigurationRepository
 
@@ -20,5 +22,7 @@ __all__ = [
     'PromptUsageRepository',
     'GeneratedContentRepository',
     'MemoryRepository',
+    'EnhancedMemoryRepository',
+    'ContextRelationshipRepository',
     'AIConfigurationRepository'
 ]

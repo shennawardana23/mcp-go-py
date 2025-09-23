@@ -130,3 +130,67 @@ class MemoryEntry(MemoryEntryBase):
 
     class Config:
         from_attributes = True
+
+
+class ContextRelationshipBase(BaseModel):
+    """Base context relationship model"""
+    source_memory_id: UUID = Field(..., description="Source memory entry ID")
+    target_memory_id: UUID = Field(..., description="Target memory entry ID")
+    relationship_type: str = Field(..., description="Type of relationship (references, follows, contradicts, etc.)")
+    strength: float = Field(default=1.0, ge=0.0, le=1.0, description="Relationship strength (0-1)")
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class ContextRelationshipCreate(ContextRelationshipBase):
+    """Model for creating context relationship"""
+    pass
+
+
+class ContextRelationship(ContextRelationshipBase):
+    """Complete context relationship model"""
+    id: UUID = Field(default_factory=uuid4)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        from_attributes = True
+
+
+class ContextType(str):
+    """Context type enumeration"""
+    CONVERSATION = "conversation"
+    CODE_ANALYSIS = "code_analysis"
+    PROJECT_TASK = "project_task"
+    WEB_CONTENT = "web_content"
+    DATABASE_QUERY = "database_query"
+    TEST_RESULT = "test_result"
+    REASONING_STEP = "reasoning_step"
+    KNOWLEDGE_BASE = "knowledge_base"
+
+
+class EnhancedMemoryEntryBase(BaseModel):
+    """Enhanced base memory entry model with sophisticated context management"""
+    conversation_id: str = Field(..., description="Conversation identifier")
+    session_id: str = Field(default="default", description="Session identifier")
+    role: str = Field(..., description="Role (user, assistant, system)")
+    content: str = Field(..., description="Memory content")
+    context_type: ContextType = Field(default=ContextType.CONVERSATION, description="Type of context")
+    importance_score: float = Field(default=0.5, ge=0.0, le=1.0, description="Importance score (0-1)")
+    tags: List[str] = Field(default_factory=list, description="Context tags for categorization")
+    relationships: List[str] = Field(default_factory=list, description="Related memory IDs")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Extended metadata")
+    ttl_seconds: int = Field(default=3600, description="Time to live in seconds")
+
+
+class EnhancedMemoryEntryCreate(EnhancedMemoryEntryBase):
+    """Model for creating enhanced memory entry"""
+    pass
+
+
+class EnhancedMemoryEntry(EnhancedMemoryEntryBase):
+    """Complete enhanced memory entry model"""
+    id: UUID = Field(default_factory=uuid4)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    vector_embedding: Optional[List[float]] = None  # For semantic search
+
+    class Config:
+        from_attributes = True

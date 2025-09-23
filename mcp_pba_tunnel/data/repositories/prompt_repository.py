@@ -7,7 +7,11 @@ from uuid import UUID
 import json
 
 from .base import BaseRepository
-from ..models import PromptTemplate, PromptUsage, GeneratedContent, MemoryEntry
+from ..models import (
+    PromptTemplate, PromptUsage, GeneratedContent, MemoryEntry,
+    ContextRelationship, ContextRelationshipCreate,
+    EnhancedMemoryEntry, EnhancedMemoryEntryCreate
+)
 
 
 class PromptTemplateRepository(BaseRepository[PromptTemplate]):
@@ -352,3 +356,213 @@ class MemoryRepository(BaseRepository[MemoryEntry]):
         """Clear all memory entries for a conversation"""
         query = "DELETE FROM memory_entries WHERE conversation_id = %s"
         return self.execute_delete(query, (conversation_id,))
+
+
+class EnhancedMemoryRepository(BaseRepository[EnhancedMemoryEntry]):
+    """Enhanced repository for sophisticated memory management"""
+
+    def __init__(self):
+        super().__init__("enhanced_memory_entries")
+
+    def create(self, entry: EnhancedMemoryEntry) -> str:
+        """Store an enhanced memory entry"""
+        query = """
+        INSERT INTO enhanced_memory_entries (
+            id, conversation_id, session_id, role, content, context_type,
+            importance_score, tags, relationships, metadata, ttl_seconds
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        params = (
+            str(entry.id),
+            entry.conversation_id,
+            entry.session_id,
+            entry.role,
+            entry.content,
+            entry.context_type,
+            entry.importance_score,
+            self._serialize_json(entry.tags),
+            self._serialize_json(entry.relationships),
+            self._serialize_json(entry.metadata),
+            entry.ttl_seconds
+        )
+
+        return self.execute_insert(query, params)
+
+    def get_by_conversation(self, conversation_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """Retrieve enhanced memory entries for a conversation"""
+        query = """
+        SELECT id, role, content, context_type, importance_score, tags,
+               relationships, metadata, timestamp
+        FROM enhanced_memory_entries
+        WHERE conversation_id = %s
+        ORDER BY importance_score DESC, timestamp DESC
+        LIMIT %s
+        """
+
+        results = self.execute_query(query, (conversation_id, limit), fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "role": row[1],
+                "content": row[2],
+                "context_type": row[3],
+                "importance_score": row[4],
+                "tags": self._deserialize_json(row[5]) or [],
+                "relationships": self._deserialize_json(row[6]) or [],
+                "metadata": self._deserialize_json(row[7]) or {},
+                "timestamp": row[8].isoformat() if row[8] else None
+            }
+            for row in results
+        ]
+
+    def get_by_context_type(self, context_type: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """Get memory entries by context type"""
+        query = """
+        SELECT id, conversation_id, role, content, importance_score, tags, timestamp
+        FROM enhanced_memory_entries
+        WHERE context_type = %s
+        ORDER BY importance_score DESC, timestamp DESC
+        LIMIT %s
+        """
+
+        results = self.execute_query(query, (context_type, limit), fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "conversation_id": row[1],
+                "role": row[2],
+                "content": row[3],
+                "importance_score": row[4],
+                "tags": self._deserialize_json(row[5]) or [],
+                "timestamp": row[6].isoformat() if row[6] else None
+            }
+            for row in results
+        ]
+
+    def get_related_memories(self, memory_id: UUID, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get memories related to a specific memory entry"""
+        query = """
+        SELECT em.id, em.role, em.content, em.context_type, em.importance_score, em.timestamp
+        FROM enhanced_memory_entries em
+        JOIN context_relationships cr ON em.id = cr.target_memory_id
+        WHERE cr.source_memory_id = %s
+        ORDER BY cr.strength DESC, em.importance_score DESC
+        LIMIT %s
+        """
+
+        results = self.execute_query(query, (str(memory_id), limit), fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "role": row[1],
+                "content": row[2],
+                "context_type": row[3],
+                "importance_score": row[4],
+                "timestamp": row[5].isoformat() if row[5] else None
+            }
+            for row in results
+        ]
+
+    def search_by_tags(self, tags: List[str], limit: int = 50) -> List[Dict[str, Any]]:
+        """Search memory entries by tags"""
+        placeholders = ', '.join(['%s'] * len(tags))
+        query = f"""
+        SELECT id, conversation_id, role, content, context_type, importance_score, timestamp
+        FROM enhanced_memory_entries
+        WHERE tags::text[] && ARRAY[{placeholders}]
+        ORDER BY importance_score DESC, timestamp DESC
+        LIMIT %s
+        """
+
+        params = tags + [limit]
+        results = self.execute_query(query, params, fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "conversation_id": row[1],
+                "role": row[2],
+                "content": row[3],
+                "context_type": row[4],
+                "importance_score": row[5],
+                "timestamp": row[6].isoformat() if row[6] else None
+            }
+            for row in results
+        ]
+
+    def delete_by_conversation(self, conversation_id: str) -> int:
+        """Clear all enhanced memory entries for a conversation"""
+        query = "DELETE FROM enhanced_memory_entries WHERE conversation_id = %s"
+        return self.execute_delete(query, (conversation_id,))
+
+
+class ContextRelationshipRepository(BaseRepository[ContextRelationship]):
+    """Repository for context relationship management"""
+
+    def __init__(self):
+        super().__init__("context_relationships")
+
+    def create(self, relationship: ContextRelationship) -> str:
+        """Create a context relationship"""
+        query = """
+        INSERT INTO context_relationships (
+            id, source_memory_id, target_memory_id, relationship_type, strength, metadata
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+        """
+
+        params = (
+            str(relationship.id),
+            str(relationship.source_memory_id),
+            str(relationship.target_memory_id),
+            relationship.relationship_type,
+            relationship.strength,
+            self._serialize_json(relationship.metadata)
+        )
+
+        return self.execute_insert(query, params)
+
+    def get_relationships(self, memory_id: UUID) -> List[Dict[str, Any]]:
+        """Get all relationships for a memory entry"""
+        query = """
+        SELECT id, source_memory_id, target_memory_id, relationship_type, strength, metadata, created_at
+        FROM context_relationships
+        WHERE source_memory_id = %s OR target_memory_id = %s
+        ORDER BY strength DESC
+        """
+
+        results = self.execute_query(query, (str(memory_id), str(memory_id)), fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "source_memory_id": UUID(row[1]),
+                "target_memory_id": UUID(row[2]),
+                "relationship_type": row[3],
+                "strength": row[4],
+                "metadata": self._deserialize_json(row[5]) or {},
+                "created_at": row[6].isoformat() if row[6] else None
+            }
+            for row in results
+        ]
+
+    def get_relationships_by_type(self, relationship_type: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """Get relationships by type"""
+        query = """
+        SELECT id, source_memory_id, target_memory_id, strength, metadata, created_at
+        FROM context_relationships
+        WHERE relationship_type = %s
+        ORDER BY strength DESC
+        LIMIT %s
+        """
+
+        results = self.execute_query(query, (relationship_type, limit), fetch="all")
+        return [
+            {
+                "id": UUID(row[0]),
+                "source_memory_id": UUID(row[1]),
+                "target_memory_id": UUID(row[2]),
+                "strength": row[3],
+                "metadata": self._deserialize_json(row[4]) or {},
+                "created_at": row[5].isoformat() if row[5] else None
+            }
+            for row in results
+        ]

@@ -30,6 +30,56 @@ flowchart LR
     end
 ```
 
+### 2. Enhanced Memory Context Variable (`context_entry`)
+
+**Data Flow:** Context Creation → Relationship Mapping → Importance Scoring → Persistent Storage
+
+```mermaid
+flowchart LR
+    subgraph "Context Creation"
+        A[User Input<br/>conversation_id, content, metadata] --> B[Context Validation<br/>Sanitize and Validate Input]
+        B --> C[Importance Scoring<br/>Calculate Relevance Weight]
+        C --> D[Tag Processing<br/>Extract and Normalize Tags]
+    end
+
+    subgraph "Relationship Mapping"
+        D --> E[Relationship Detection<br/>Find Related Context Entries]
+        E --> F[Context Linking<br/>Create Relationship Objects]
+        F --> G[Importance Propagation<br/>Update Related Entries]
+    end
+
+    subgraph "Persistent Storage"
+        G --> H[Enhanced Memory Repository<br/>Store Context with Relationships]
+        H --> I[Database Transaction<br/>Atomic Persistence]
+        I --> J[Context Retrieval Engine<br/>Indexed for Fast Access]
+    end
+```
+
+### 3. Advanced Tool Execution Variable (`tool_execution`)
+
+**Data Flow:** Tool Request → Execution Engine → Result Processing → Response Generation
+
+```mermaid
+flowchart LR
+    subgraph "Tool Request Processing"
+        A[Tool Call Request<br/>tool_name, parameters, context] --> B[Tool Validation<br/>Validate Tool and Parameters]
+        B --> C[Security Check<br/>Sanitize Inputs, Check Permissions]
+        C --> D[Tool Selection<br/>Load Appropriate Tool Handler]
+    end
+
+    subgraph "Execution Pipeline"
+        D --> E[Tool Execution Engine<br/>Run Tool with Parameters]
+        E --> F[Result Capture<br/>Collect Output and Metadata]
+        F --> G[AI Enhancement<br/>Optional AI Processing]
+    end
+
+    subgraph "Response Generation"
+        G --> H[Result Formatting<br/>Structure Tool Output]
+        H --> I[Context Integration<br/>Update Memory with Results]
+        I --> J[Response Building<br/>Format for Client]
+    end
+```
+
 **Transformation Points:**
 
 1. **Input Sanitization**:

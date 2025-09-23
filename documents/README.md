@@ -54,6 +54,8 @@ graph TD
   - Error handling flow
   - Performance optimization
   - Control flow branching
+  - Enhanced memory system flows
+  - Advanced tool execution patterns
 
 ### Data Management
 
@@ -62,6 +64,8 @@ graph TD
   - Data transformation points
   - Quality metrics
   - Governance policies
+  - Enhanced context relationships
+  - Memory management data flows
 
 ### Component Architecture
 
@@ -70,6 +74,8 @@ graph TD
   - Interaction patterns
   - Quality metrics
   - Performance components
+  - Enhanced tool components
+  - Advanced reasoning systems
 
 ## 📊 Documentation Categories
 

@@ -62,6 +62,28 @@ graph TB
         AA --> BB
         W --> CC[External APIs<br/>Optional integrations]
     end
+
+    subgraph "Enhanced Memory System"
+        PS --> DD[Context Relationship Manager<br/>Relationship Mapping]
+        PR --> EE[Enhanced Memory Repository<br/>Advanced Context Storage]
+        DD --> FF[Importance Scoring Engine<br/>Relevance Calculation]
+        EE --> GG[Tag-Based Organization<br/>Flexible Categorization]
+        FF --> HH[Context Retrieval Engine<br/>Memory Querying]
+        GG --> HH
+    end
+
+    subgraph "Advanced Tool Ecosystem"
+        PM --> II[Web Scraping Engine<br/>BeautifulSoup4 + Requests]
+        PM --> JJ[Code Analysis Tools<br/>Complexity + Quality Metrics]
+        PM --> KK[Terminal Executor<br/>Safe Command Execution]
+        PM --> LL[Database Analyzer<br/>Schema + Query Analysis]
+        PM --> MM[Testing Framework<br/>Automated Test Execution]
+        II --> NN[External Data Sources<br/>APIs + Web Content]
+        JJ --> OO[Code Repository<br/>Source Code Files]
+        KK --> PP[System Terminal<br/>Command Line Interface]
+        LL --> QQ[Database Systems<br/>PostgreSQL + Analytics]
+        MM --> RR[Test Suites<br/>Unit + Integration Tests]
+    end
 ```
 
 ## 🔧 Detailed Component Architecture

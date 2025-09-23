@@ -8,11 +8,14 @@ from uuid import UUID
 
 from ..models import (
     PromptTemplate, PromptTemplateCreate, PromptTemplateUpdate,
-    PromptUsage, GeneratedContent, MemoryEntry
+    PromptUsage, GeneratedContent, MemoryEntry,
+    ContextRelationship, ContextRelationshipCreate,
+    EnhancedMemoryEntry, EnhancedMemoryEntryCreate
 )
 from ..repositories import (
     PromptTemplateRepository, PromptUsageRepository,
-    GeneratedContentRepository, MemoryRepository
+    GeneratedContentRepository, MemoryRepository,
+    EnhancedMemoryRepository, ContextRelationshipRepository
 )
 from ..validation import DataValidator
 
@@ -27,6 +30,8 @@ class PromptService:
         self.usage_repository = PromptUsageRepository()
         self.content_repository = GeneratedContentRepository()
         self.memory_repository = MemoryRepository()
+        self.enhanced_memory_repository = EnhancedMemoryRepository()
+        self.context_relationship_repository = ContextRelationshipRepository()
 
     def create_template(self, template_data: Dict[str, Any]) -> PromptTemplate:
         """Create a new prompt template with validation"""
@@ -171,3 +176,145 @@ class PromptService:
     def clear_memory_entries(self, conversation_id: str) -> int:
         """Clear all memory entries for a conversation"""
         return self.memory_repository.delete_by_conversation(conversation_id)
+
+    def store_enhanced_memory_entry(
+        self,
+        conversation_id: str,
+        session_id: str,
+        role: str,
+        content: str,
+        context_type: str,
+        importance_score: float = 0.5,
+        tags: List[str] = None,
+        relationships: List[str] = None,
+        metadata: Dict[str, Any] = None,
+        ttl_seconds: int = 3600
+    ) -> str:
+        """Store an enhanced memory entry with sophisticated context management"""
+        entry = EnhancedMemoryEntry(
+            conversation_id=conversation_id,
+            session_id=session_id,
+            role=role,
+            content=content,
+            context_type=context_type,
+            importance_score=importance_score,
+            tags=tags or [],
+            relationships=relationships or [],
+            metadata=metadata or {},
+            ttl_seconds=ttl_seconds
+        )
+
+        return self.enhanced_memory_repository.create(entry)
+
+    def retrieve_enhanced_memory_entries(
+        self,
+        conversation_id: str,
+        context_type: str = None,
+        tags: List[str] = None,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """Retrieve enhanced memory entries with advanced filtering"""
+        if context_type:
+            return self.enhanced_memory_repository.get_by_context_type(context_type, limit)
+        elif tags:
+            return self.enhanced_memory_repository.search_by_tags(tags, limit)
+        else:
+            return self.enhanced_memory_repository.get_by_conversation(conversation_id, limit)
+
+    def get_related_memories(self, memory_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get memories related to a specific memory entry"""
+        try:
+            memory_uuid = UUID(memory_id)
+            return self.enhanced_memory_repository.get_related_memories(memory_uuid, limit)
+        except ValueError:
+            logger.error(f"Invalid memory ID format: {memory_id}")
+            return []
+
+    def create_context_relationship(
+        self,
+        source_memory_id: str,
+        target_memory_id: str,
+        relationship_type: str,
+        strength: float = 1.0,
+        metadata: Dict[str, Any] = None
+    ) -> str:
+        """Create a context relationship between memory entries"""
+        try:
+            source_uuid = UUID(source_memory_id)
+            target_uuid = UUID(target_memory_id)
+
+            relationship = ContextRelationship(
+                source_memory_id=source_uuid,
+                target_memory_id=target_uuid,
+                relationship_type=relationship_type,
+                strength=strength,
+                metadata=metadata or {}
+            )
+
+            return self.context_relationship_repository.create(relationship)
+        except ValueError as e:
+            logger.error(f"Invalid UUID format: {e}")
+            raise
+
+    def get_context_relationships(self, memory_id: str) -> List[Dict[str, Any]]:
+        """Get all context relationships for a memory entry"""
+        try:
+            memory_uuid = UUID(memory_id)
+            return self.context_relationship_repository.get_relationships(memory_uuid)
+        except ValueError:
+            logger.error(f"Invalid memory ID format: {memory_id}")
+            return []
+
+    def clear_enhanced_memory_entries(self, conversation_id: str) -> int:
+        """Clear all enhanced memory entries for a conversation"""
+        return self.enhanced_memory_repository.delete_by_conversation(conversation_id)
+
+    def build_memory_context(
+        self,
+        conversation_id: str,
+        context_types: List[str] = None,
+        max_entries: int = 20,
+        min_importance: float = 0.0
+    ) -> str:
+        """Build a comprehensive memory context for AI processing"""
+        context_parts = []
+
+        # Get relevant memory entries
+        if context_types:
+            for context_type in context_types:
+                entries = self.retrieve_enhanced_memory_entries(
+                    conversation_id,
+                    context_type=context_type,
+                    limit=max_entries
+                )
+                if entries:
+                    context_parts.append(f"\n## {context_type.upper()} CONTEXT:")
+                    for entry in entries:
+                        if entry['importance_score'] >= min_importance:
+                            context_parts.append(f"[{entry['role'].upper()}] {entry['content']}")
+        else:
+            # Get all conversation memory
+            entries = self.retrieve_enhanced_memory_entries(conversation_id, limit=max_entries)
+            if entries:
+                context_parts.append("\n## CONVERSATION CONTEXT:")
+                for entry in entries:
+                    if entry['importance_score'] >= min_importance:
+                        context_parts.append(f"[{entry['role'].upper()}] {entry['content']}")
+
+        # Get related memories from relationships
+        entries = self.retrieve_enhanced_memory_entries(conversation_id, limit=max_entries)
+        related_memory_ids = []
+        for entry in entries:
+            related_memory_ids.extend(entry.get('relationships', []))
+
+        if related_memory_ids:
+            context_parts.append("\n## RELATED CONTEXT:")
+            for memory_id in related_memory_ids[:5]:  # Limit to top 5 related memories
+                try:
+                    related_memories = self.get_related_memories(memory_id, limit=3)
+                    for memory in related_memories:
+                        context_parts.append(f"[RELATED] {memory['content']}")
+                except Exception as e:
+                    logger.warning(f"Could not retrieve related memory {memory_id}: {e}")
+
+        return "\n".join(context_parts) if context_parts else "No relevant context found."
