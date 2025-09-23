@@ -9,6 +9,11 @@ This document provides a comprehensive analysis of the FastAPI-based MCP server'
 ### HTTP Request Lifecycle with Layered Architecture
 
 ```mermaid
+---
+config:
+  layout: elk
+  theme: forest
+---
 sequenceDiagram
     participant C as MCP Client
     participant F as FastAPI Server
@@ -39,7 +44,13 @@ sequenceDiagram
 ### Detailed Request Flow Components with Layered Architecture
 
 ```mermaid
-flowchart TD
+---
+config:
+  layout: elk
+  theme: neutral
+  look: neon
+---
+flowchart TB
     A[Client Request<br/>HTTP POST /mcp/prompts/list] --> B[FastAPI Middleware<br/>CORS, Logging, Validation]
     B --> C[Request Parsing<br/>JSON Body Processing]
     C --> D{MCP Protocol<br/>Validation}
@@ -73,8 +84,15 @@ flowchart TD
 **Endpoint**: `POST /mcp/prompts/list`
 
 ```mermaid
-flowchart TD
-    A[AI Assistant<br/>Claude/Cursor] --> B[Generate JSON-RPC Request<br/>{"jsonrpc": "2.0", "id": "123", "method": "prompts/list"}]
+---
+config:
+  layout: elk
+  theme: base
+  look: neon
+---
+flowchart LR
+    A[AI Assistant<br/>Claude/Cursor] --> B[Generate JSON-RPC Request]
+    B --> C[Request Body<br/>jsonrpc: 2.0, id: 123, method: prompts/list]
     B --> C[HTTP Client<br/>Send POST Request]
     C --> D[Network Layer<br/>TCP/IP Transport]
     D --> E[FastAPI Server<br/>Receive Request]
@@ -82,7 +100,7 @@ flowchart TD
     E --> F[Request Context<br/>URL, Headers, Body]
     F --> G[Middleware Stack<br/>CORS, Logging, Security]
     G --> H[Route Matching<br/>Match /mcp/prompts/list]
-    H --> I[Handler Execution<br/>list_prompts() Function]
+    H --> I[Handler Execution<br/>list_prompts Function]
 ```
 
 **Data Flow:**
@@ -97,12 +115,17 @@ flowchart TD
 **Request Handler**: `list_prompts()` - Uses Repository/Service Pattern
 
 ```mermaid
+---
+config:
+  layout: elk
+  theme: default
+---
 flowchart TD
-    A[Handler Start<br/>async def list_prompts(request: Dict) -> Dict] --> B[Input Validation<br/>Check JSON-RPC Format]
-    B --> C[PromptDataManager.get_data_manager()<br/>Get Facade Instance]
-    C --> D[PromptService.list_templates()<br/>Business Logic Call]
-    D --> E[PromptRepository.find_active_templates()<br/>Repository Query]
-    E --> F[DatabaseConfig.get_connection()<br/>Connection Pool Access]
+    A[Handler Start] --> B[Input Validation<br/>Check JSON-RPC Format]
+    B --> C[PromptDataManager.get_data_manager<br/>Get Facade Instance]
+    C --> D[PromptService.list_templates<br/>Business Logic Call]
+    D --> E[PromptRepository.find_active_templates<br/>Repository Query]
+    E --> F[DatabaseConfig.get_connection<br/>Connection Pool Access]
     F --> G[psycopg Native Query<br/>SELECT * FROM prompt_templates WHERE is_active=True]
     G --> H[Result Processing<br/>Transform Raw Data to Objects]
     H --> I[Service Layer Validation<br/>Business Rules Applied]
@@ -158,7 +181,7 @@ flowchart TD
 
     E --> G[Service Layer Processing<br/>Business Logic & Validation]
     G --> H[Variable Processing<br/>Parse Template Variables]
-    H --> I[Content Rendering<br/>Replace {{variables}} with Values]
+    H --> I[Content Rendering<br/>Replace variables with Values]
     I --> J[AI Enhancement<br/>Optional GPT/Claude Integration]
     J --> K[Output Formatting<br/>Clean and Structure Response]
     K --> L[Success Response<br/>Rendered Template Content]
@@ -175,9 +198,14 @@ flowchart TD
 **Repository Layer Query Flow**:
 
 ```mermaid
+---
+config:
+  layout: elk
+  theme: default
+---
 flowchart TD
     A[Service Request<br/>Business Operation] --> B[Repository Layer<br/>Data Access Interface]
-    B --> C[Connection Pool<br/>DatabaseConfig.get_connection_pool()]
+    B --> C[Connection Pool<br/>DatabaseConfig.get_connection_pool]
     C --> D[Native SQL Query<br/>Repository builds optimized queries]
     D --> E[Parameter Binding<br/>Safe SQL injection prevention]
     E --> F[Query Execution<br/>psycopg native query execution]
@@ -217,14 +245,14 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph "Input Stage"
-        A[HTTP Request<br/>template_name="business_logic"] --> B[URL Parsing<br/>Extract from Query String]
+        A[HTTP Request<br/>template_name='business_logic'] --> B[URL Parsing<br/>Extract from Query String]
         B --> C[Validation<br/>Check Template Exists]
     end
 
     subgraph "Processing Stage"
         C --> D[Database Query<br/>SELECT * FROM prompt_templates WHERE name=%s]
         D --> E[Template Loading<br/>Load Template Content]
-        E --> F[Variable Substitution<br/>Replace {{variables}} in Content]
+        E --> F[Variable Substitution<br/>Replace variables in Content]
     end
 
     subgraph "Output Stage"
@@ -254,11 +282,11 @@ stateDiagram-v2
     TemplateProcessing --> ResponseGeneration
     ResponseGeneration --> [*]
 
-    InputValidation : variables = {"domain": "ecommerce", "type": "api"}
-    VariableParsing : Parse JSON input<br/>Validate variable types
-    DatabaseStorage : Store input variables<br/>JSON field in database
-    TemplateProcessing : template = "Design API for {{domain}} {{type}}"
-    ResponseGeneration : output = "Design API for ecommerce api"
+    InputValidation : Validate input variables
+    VariableParsing : Parse JSON input
+    DatabaseStorage : Store input variables
+    TemplateProcessing : Load template
+    ResponseGeneration : Output rendered template
 ```
 
 ## 🔧 Control Flow Branching
