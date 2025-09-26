@@ -371,6 +371,7 @@ class EnhancedMemoryRepository(BaseRepository[EnhancedMemoryEntry]):
             id, conversation_id, session_id, role, content, context_type,
             importance_score, tags, relationships, metadata, ttl_seconds
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id
         """
 
         params = (
@@ -508,6 +509,7 @@ class ContextRelationshipRepository(BaseRepository[ContextRelationship]):
         INSERT INTO context_relationships (
             id, source_memory_id, target_memory_id, relationship_type, strength, metadata
         ) VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING id
         """
 
         params = (

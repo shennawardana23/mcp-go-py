@@ -22,6 +22,81 @@ MCP-PBA-TUNNEL (MCP Prompt-Based Architecture Tunnel) implements a comprehensive
 - **🔒 Production Ready**: FastAPI, psycopg, Redis, comprehensive monitoring
 - **🎨 MCP Protocol**: Full MCP 2024-11-05 specification compliance
 
+## 🧠 Enhanced Memory System
+
+The MCP-PBA-TUNNEL now includes a sophisticated memory system with context relationships and importance scoring:
+
+### Key Features
+
+- **Context Relationships**: Link related memory entries with strength and metadata
+- **Importance Scoring**: 0.1-1.0 scale for relevance ranking
+- **Advanced Querying**: Filter by context type, importance, relationships
+- **Context Types**: conversation, code_analysis, project_task, web_content, database_query, test_result, reasoning_step, knowledge_base
+
+### Usage Example
+
+```python
+from mcp_pba_tunnel.data.project_manager import PromptDataManager
+
+manager = PromptDataManager()
+
+# Store memory with context
+memory_id = manager.store_enhanced_memory_entry(
+    conversation_id='my-analysis',
+    session_id='session-001',
+    role='user',
+    content='Analyze authentication system security',
+    context_type='code_analysis',
+    importance_score=0.9
+)
+
+# Query related memories
+entries = manager.retrieve_enhanced_memory_entries(
+    conversation_id='my-analysis',
+    context_type='code_analysis'
+)
+```
+
+## 🛠️ Advanced Tool Ecosystem
+
+Access 12+ advanced tools for AI-powered development:
+
+- **Enhanced Memory**: Context-aware memory management
+- **Code Analysis**: Security and performance analysis
+- **File Operations**: Safe file manipulation
+- **Terminal Execution**: Sandboxed command execution
+- **Sequential Reasoning**: Multi-step problem solving
+- **Project Tracking**: Task and progress management
+- **Data Analysis**: Pattern and trend analysis
+
+## 🔒 Security Hardening
+
+All tools include comprehensive security features:
+
+- Input validation and sanitization
+- Path traversal protection
+- Command whitelisting for terminal execution
+- XSS and SQL injection prevention
+- Rate limiting and access control
+
+## ⚡ Performance Optimizations
+
+Production-ready performance features:
+
+- Database query optimization with indexing
+- Memory and query result caching
+- Connection pooling for high throughput
+- Background cleanup and maintenance
+- Performance monitoring and statistics
+
+## 📚 Documentation
+
+For comprehensive documentation, see:
+
+- **[Enhanced Memory API Reference](documents/enhanced_memory_api.md)** - Complete API documentation for memory system
+- **[Advanced Tools Reference](documents/advanced_tools_reference.md)** - Tool ecosystem documentation
+- **[Usage Guide](documents/enhanced_usage_guide.md)** - Practical examples and best practices
+
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites

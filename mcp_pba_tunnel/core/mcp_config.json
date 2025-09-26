@@ -73,6 +73,40 @@
                 "file_path": "string",
                 "analysis_type": "complexity|patterns|security|performance",
                 "output_format": "summary|detailed|json"
+            },
+            "security": {
+                "max_file_size": 5242880,
+                "allowed_extensions": [
+                    ".py",
+                    ".js",
+                    ".ts",
+                    ".java",
+                    ".c",
+                    ".cpp",
+                    ".h",
+                    ".hpp",
+                    ".cs",
+                    ".go",
+                    ".rs",
+                    ".php",
+                    ".rb",
+                    ".sh",
+                    ".sql"
+                ],
+                "blocked_extensions": [
+                    ".exe",
+                    ".bat",
+                    ".cmd",
+                    ".com",
+                    ".pif",
+                    ".scr",
+                    ".vbs",
+                    ".js",
+                    ".jar",
+                    ".class"
+                ],
+                "sandbox_analysis": true,
+                "timeout_seconds": 60
             }
         },
         "file_operations": {
@@ -85,6 +119,41 @@
                 "content": "string",
                 "search_pattern": "string",
                 "replace_with": "string"
+            },
+            "security": {
+                "allowed_paths": [
+                    "/tmp",
+                    "/home",
+                    "/workspace",
+                    "/project"
+                ],
+                "blocked_paths": [
+                    "/etc",
+                    "/usr",
+                    "/bin",
+                    "/sbin",
+                    "/var",
+                    "/sys",
+                    "/proc",
+                    "/dev"
+                ],
+                "max_file_size": 10485760,
+                "allowed_operations": [
+                    "read",
+                    "write",
+                    "search"
+                ],
+                "encoding_validation": true,
+                "path_traversal_protection": true
+            },
+            "validation": {
+                "file_path_pattern": "^[a-zA-Z0-9_/\\.\\-\\s]+$",
+                "content_encoding": [
+                    "utf-8",
+                    "ascii",
+                    "latin-1"
+                ],
+                "max_content_length": 1000000
             }
         },
         "terminal_execution": {
@@ -96,6 +165,48 @@
                 "working_directory": "string",
                 "environment_vars": "object",
                 "timeout": "number"
+            },
+            "security": {
+                "sandbox_enabled": true,
+                "allowed_commands": [
+                    "ls",
+                    "cat",
+                    "grep",
+                    "find",
+                    "head",
+                    "tail",
+                    "wc",
+                    "sort",
+                    "uniq",
+                    "cut",
+                    "awk",
+                    "sed"
+                ],
+                "blocked_commands": [
+                    "rm",
+                    "rmdir",
+                    "del",
+                    "format",
+                    "dd",
+                    "mkfs",
+                    "mount",
+                    "umount",
+                    "sudo",
+                    "su",
+                    "chmod",
+                    "chown",
+                    "passwd"
+                ],
+                "timeout_seconds": 30,
+                "max_output_size": 1048576,
+                "environment_restrictions": [
+                    "restricted"
+                ]
+            },
+            "validation": {
+                "command_pattern": "^[a-zA-Z0-9_/\\.\\-\\s]+$",
+                "working_directory_pattern": "^[a-zA-Z0-9_/\\.\\-\\s]+$",
+                "max_command_length": 1000
             }
         },
         "sequential_reasoning": {
@@ -131,6 +242,14 @@
                 "analysis_type": "patterns|trends|correlations|anomalies",
                 "parameters": "object",
                 "output_format": "string"
+            },
+            "security": {
+                "read_only": true,
+                "max_query_timeout": 60,
+                "max_rows_returned": 10000,
+                "sql_injection_protection": true,
+                "sensitive_data_masking": true,
+                "query_complexity_limit": "medium"
             }
         },
         "test_generator": {
@@ -390,13 +509,33 @@
         "pool_size": 20,
         "max_overflow": 30,
         "pool_timeout": 30,
-        "pool_recycle": 3600
+        "pool_recycle": 3600,
+        "pool_min_size": 5,
+        "pool_max_size": 50,
+        "echo": false
     },
     "security": {
-        "secret_key": "your-secret-key-here",
-        "algorithm": "HS256",
-        "access_token_expire_minutes": 30,
-        "refresh_token_expire_days": 7
+        "input_validation": {
+            "max_string_length": 10000,
+            "allowed_characters": "unicode",
+            "strip_whitespace": true,
+            "escape_html": true
+        },
+        "rate_limiting": {
+            "requests_per_minute": 100,
+            "requests_per_hour": 1000,
+            "burst_limit": 20
+        },
+        "audit_logging": {
+            "enabled": true,
+            "log_sensitive_operations": true,
+            "retention_days": 90
+        },
+        "error_handling": {
+            "hide_internal_errors": true,
+            "sanitize_error_messages": true,
+            "log_stack_traces": false
+        }
     },
     "logging": {
         "level": "INFO",
@@ -405,8 +544,47 @@
     },
     "monitoring": {
         "enabled": true,
-        "metrics_port": 9090,
-        "health_check_path": "/health"
+        "interval_seconds": 30,
+        "dashboard_enabled": true,
+        "dashboard_host": "0.0.0.0",
+        "dashboard_port": 8080,
+        "alert_thresholds": {
+            "memory_usage": {
+                "warning": 80.0,
+                "critical": 90.0
+            },
+            "cpu_usage": {
+                "warning": 70.0,
+                "critical": 85.0
+            },
+            "cache_hit_rate": {
+                "warning": 50.0,
+                "critical": 30.0
+            },
+            "query_response_time": {
+                "warning": 500.0,
+                "critical": 2000.0
+            },
+            "error_rate": {
+                "warning": 5.0,
+                "critical": 10.0
+            },
+            "throughput_per_second": {
+                "warning": 10.0,
+                "critical": 5.0
+            }
+        },
+        "metrics_retention": {
+            "max_metrics_count": 1000,
+            "cleanup_interval_minutes": 60
+        },
+        "alerting": {
+            "enabled": true,
+            "log_alerts": true,
+            "webhook_alerts": false,
+            "webhook_url": "",
+            "critical_alerts_only": false
+        }
     },
     "celery": {
         "broker_url": "redis://localhost:6379/0",
@@ -444,6 +622,43 @@
             "instance_class": "db.t4g.micro",
             "allocated_storage": 20,
             "backup_retention": 7
+        }
+    },
+    "performance": {
+        "caching": {
+            "enabled": true,
+            "memory_cache_size": 1000,
+            "redis_cache_ttl": 3600,
+            "query_result_cache_ttl": 300,
+            "frequently_used_queries_cache": true
+        },
+        "connection_pooling": {
+            "min_connections": 5,
+            "max_connections": 50,
+            "connection_timeout": 30,
+            "keepalive_timeout": 300,
+            "recycle_connections": true
+        },
+        "query_optimization": {
+            "batch_size": 100,
+            "max_concurrent_queries": 10,
+            "query_timeout": 30,
+            "enable_query_plan_caching": true,
+            "optimize_complex_queries": true
+        },
+        "memory_management": {
+            "cleanup_interval_seconds": 3600,
+            "max_memory_entries_per_conversation": 1000,
+            "memory_compression_enabled": true,
+            "ttl_enforcement_enabled": true,
+            "background_cleanup_enabled": true
+        },
+        "async_processing": {
+            "enabled": true,
+            "max_workers": 4,
+            "queue_size": 1000,
+            "timeout_seconds": 60,
+            "retry_attempts": 3
         }
     }
 }

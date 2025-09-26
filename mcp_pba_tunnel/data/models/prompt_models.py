@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from uuid import UUID, uuid4
+from enum import Enum
 
 
 class PromptTemplateBase(BaseModel):
@@ -155,7 +156,7 @@ class ContextRelationship(ContextRelationshipBase):
         from_attributes = True
 
 
-class ContextType(str):
+class ContextType(str, Enum):
     """Context type enumeration"""
     CONVERSATION = "conversation"
     CODE_ANALYSIS = "code_analysis"
